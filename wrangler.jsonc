@@ -5,6 +5,11 @@
 	"compatibility_date": "2026-09-20",
 	"compatibility_flags": ["python_workers"],
 	"observability": { "enabled": true },
+	// The prerendered SvelteKit UI (web/). `not_found_handling` is deliberately left at its
+	// default so any path without a matching asset falls through to the Python Worker — that
+	// is what keeps /estimate, /gantries and /docs working. `/` is served by index.html,
+	// shadowing FastAPI's own landing route.
+	"assets": { "directory": "./web/build" },
 	"vars": {
 		"ROUTING_ENGINE": "google"
 	},

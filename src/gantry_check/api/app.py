@@ -14,6 +14,7 @@ from pydantic import BaseModel, Field
 
 from gantry_check import __version__
 from gantry_check.domain.daytype import day_type_for, to_sgt
+from gantry_check.domain.geo import encode_polyline
 from gantry_check.domain.models import (
     CHARGEABLE_DAY_TYPES,
     DayType,
@@ -95,6 +96,7 @@ class EstimateOut(BaseModel):
     summary: str
     distance_m: float
     duration_s: float
+    polyline: str = Field(description="Route geometry as a Google encoded polyline (precision 5)")
     depart_at: datetime = Field(description="Singapore time")
     vehicle: VehicleType
     charges: list[ChargeOut]
@@ -122,6 +124,7 @@ def _estimate_out(result: Estimate) -> EstimateOut:
         summary=result.route.summary,
         distance_m=result.route.distance_m,
         duration_s=result.route.duration_s,
+        polyline=encode_polyline(result.route.points, precision=5),
         depart_at=result.depart_at,
         vehicle=result.vehicle,
         charges=[

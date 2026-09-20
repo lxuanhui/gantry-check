@@ -4,6 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from gantry_check.api.app import create_app
+from gantry_check.domain.geo import decode_polyline
 from gantry_check.domain.models import (
     DayType,
     Gantry,
@@ -189,6 +190,12 @@ def test_estimate_returns_the_charged_gantries(estimating_client: TestClient) ->
     }
     assert charge["crossed_at"].startswith("2026-09-21T08:11:00+08:00")
     assert any("proximity only" in w for w in body["warnings"])
+
+    decoded = decode_polyline(body["polyline"])
+    assert len(decoded) == len(FAKE_ROUTE.points)
+    for got, want in zip(decoded, FAKE_ROUTE.points, strict=True):
+        assert got.lat == pytest.approx(want.lat, abs=1e-5)
+        assert got.lng == pytest.approx(want.lng, abs=1e-5)
 
 
 def test_estimate_sunday_is_free(estimating_client: TestClient) -> None:

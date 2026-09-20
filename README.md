@@ -75,6 +75,8 @@ Gantry crossing times are estimated as `depart_at + cumulative route duration at
 ## Stack
 
 - Cloudflare Python Worker (FastAPI, served via `workers.asgi`) backed by D1.
+- A prerendered SvelteKit UI (`web/`) served from the same Worker as static assets; see
+  [Web UI](#web-ui).
 - Local development uses SQLite with the same migrations (`src/gantry_check/repo/sqlite.py` vs.
   `repo/d1.py`), so the FastAPI app (`src/gantry_check/api/app.py`) runs unchanged under
   `pytest`/`uvicorn` and inside the Worker.
@@ -84,7 +86,8 @@ Gantry crossing times are estimated as `depart_at + cumulative route duration at
 - Python 3.13 (`.python-version`; `pyproject.toml` allows 3.12+, but pin 3.13 to match ingestion
   and Worker tooling).
 - [`uv`](https://docs.astral.sh/uv/) **>= 0.12.3** — `pywrangler` needs a recent uv (`brew upgrade uv` on macOS).
-- Node.js + `npx` for `wrangler`.
+- Node.js **22** + `npx` for `wrangler` and the web UI build (`web/.node-version`; the SvelteKit
+  toolchain refuses Node 23).
 - A Cloudflare account. **Workers Paid is recommended for the API**: the Free plan's 10ms CPU
   limit is tight for a FastAPI request that hits D1.
 
@@ -208,11 +211,34 @@ Errors: `503` when no routing engine is configured (neither Google nor OneMap cr
 set), `502` when the routing engine call itself fails (bad API key, upstream error), `422` for a
 malformed request body (standard FastAPI/pydantic validation).
 
+## Web UI
+
+`web/` is a SvelteKit (Svelte 5, TypeScript, `adapter-static`) single page that geocodes both
+ends of the trip with OneMap's search API directly from the browser (no key needed), calls
+`POST /estimate`, and shows the total, the per-gantry breakdown (proximity-only matches are
+flagged "direction unverified") and a Leaflet map of the route with the charged gantries.
+Departure defaults to the current Singapore time and is sent as a naive local timestamp.
+
+```sh
+cd web && npm ci
+npm run dev       # http://localhost:5173, proxies /estimate, /gantries, /rates, /health, /docs to 127.0.0.1:8000
+npm run check     # svelte-check
+npm run build     # prerenders into web/build
+```
+
+The build output is what `wrangler.jsonc` points `assets.directory` at, so `web/build` must
+exist before `pywrangler dev` or `pywrangler deploy`. Paths with no matching asset fall through to
+the Python Worker, which is how the API keeps working on the same origin; `/` is served by the
+prerendered `index.html` and shadows FastAPI's fallback landing route. Map tiles come from
+OpenStreetMap. If you add another API link to the footer, add its path to `apiPaths` in
+`web/vite.config.ts`, or the prerender crawl fails.
+
 ## Deploy
 
 `main` is production. Every push to `main` that touches the Worker, its config or the schema
-runs `.github/workflows/deploy.yml`, which applies D1 migrations, deploys the Worker with
-`pywrangler deploy`, mirrors the routing secrets into the Worker, and smoke-tests `/health`.
+runs `.github/workflows/deploy.yml`, which builds the web UI, applies D1 migrations, deploys the
+Worker with `pywrangler deploy`, mirrors the routing secrets into the Worker, and smoke-tests
+`/health` and `/`.
 Work on a branch, open a pull request (CI runs `ruff` and `pytest`), merge to deploy.
 
 One-time setup:
@@ -243,10 +269,10 @@ A manual deploy from a laptop is still possible (`uv run pywrangler deploy` with
 ## GitHub Actions
 
 - **`ci.yml`** — on every push to `main` and every pull request: `ruff check`, `ruff format
-  --check`, `pytest`.
-- **`deploy.yml`** — on push to `main` (paths-filtered) and manual dispatch: D1 migrations,
-  `pywrangler deploy`, `wrangler secret bulk` from the GitHub secrets above, `/health` smoke
-  test. Uses the `production` environment, so branch protection or required reviewers can be
+  --check`, `pytest`, plus a `web` job (`npm ci`, `npm run check`, `npm run build`).
+- **`deploy.yml`** — on push to `main` (paths-filtered, including `web/**`) and manual dispatch:
+  web UI build, D1 migrations, `pywrangler deploy`, `wrangler secret bulk` from the GitHub secrets
+  above, `/health` and `/` smoke tests. Uses the `production` environment, so branch protection or required reviewers can be
   attached to it.
 - **`refresh.yml`** — weekly, Sunday 20:17 UTC (Monday 04:17 SGT), plus manual dispatch with
   `allow_mismatch` and `push_to_d1` inputs. Runs `gantry-check refresh`, uploads the snapshot SQL
@@ -301,7 +327,8 @@ config.py                                                 — Settings (env / .e
 ```
 
 `src/entry.py` (outside the package) is the Cloudflare Worker entry point referenced by
-`wrangler.jsonc`. Test fixtures — captured HTML tables for a few gantries, the KML file, and a
+`wrangler.jsonc`. `web/src/` holds the SvelteKit UI (`routes/+page.svelte`, `lib/PlaceInput.svelte`,
+`lib/RouteMap.svelte`, `lib/api.ts`). Test fixtures — captured HTML tables for a few gantries, the KML file, and a
 snapshot PDF — are pinned under `tests/fixtures/` so parser tests don't depend on the network.
 
 ## How route matching works

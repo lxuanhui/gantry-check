@@ -11,6 +11,8 @@ dist/
 
 # node / wrangler
 node_modules/
+web/build/
+web/.svelte-kit/
 .wrangler/
 .dev.vars*
 !.dev.vars.example
