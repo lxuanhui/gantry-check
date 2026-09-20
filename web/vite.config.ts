@@ -8,7 +8,7 @@ import { defineConfig } from 'vite';
 // relative URLs.
 const apiPaths = ['/estimate', '/gantries', '/rates', '/health', '/docs', '/openapi.json'];
 const proxy = Object.fromEntries(
-	apiPaths.map((path) => [path, { target: 'http://127.0.0.1:8000', changeOrigin: true }])
+	apiPaths.map((path) => [path, { target: 'http://127.0.0.1:8787', changeOrigin: true }])
 );
 
 export default defineConfig({

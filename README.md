@@ -220,10 +220,10 @@ flagged "direction unverified") and a Leaflet map of the route with the charged 
 Departure defaults to the current Singapore time and is sent as a naive local timestamp.
 
 ```sh
-cd web && npm ci
-npm run dev       # http://localhost:5173, proxies /estimate, /gantries, /rates, /health, /docs to 127.0.0.1:8000
-npm run check     # svelte-check
-npm run build     # prerenders into web/build
+uv run pywrangler dev            # terminal 1: the API on http://localhost:8787 (see "Running the API locally")
+cd web && npm ci && npm run dev  # terminal 2: http://localhost:5173, proxies the API paths to 127.0.0.1:8787
+npm run check                    # svelte-check
+npm run build                    # prerenders into web/build
 ```
 
 The build output is what `wrangler.jsonc` points `assets.directory` at, so `web/build` must
