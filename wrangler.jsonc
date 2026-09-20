@@ -12,7 +12,7 @@
 		{
 			"binding": "DB",
 			"database_name": "gantry-check",
-			"database_id": "REPLACE_WITH_WRANGLER_D1_CREATE_OUTPUT",
+			"database_id": "d4002cd9-d5fc-45e1-adf1-7cf0c619f829",
 			"migrations_dir": "migrations"
 		}
 	]

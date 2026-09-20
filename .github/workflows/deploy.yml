@@ -1,0 +1,83 @@
+name: Deploy
+
+# main is production: every push to main that touches the Worker, its config or the
+# schema deploys. CI (ci.yml) gates pull requests before they reach main.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "migrations/**"
+      - "wrangler.jsonc"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.url }}
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          version: ">=0.12.3"   # pywrangler needs a recent uv
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: uv sync --frozen --group dev
+
+      - name: Apply D1 migrations
+        run: npx --yes wrangler@4 d1 migrations apply gantry-check --remote
+
+      - name: Deploy Worker
+        id: deploy
+        run: |
+          uv run pywrangler deploy 2>&1 | tee deploy.log
+          url=$(grep -oE 'https://[a-z0-9.-]+\.workers\.dev' deploy.log | head -1)
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      # Worker secrets are mirrored from GitHub secrets so a rotation is one edit in one place.
+      - name: Sync Worker secrets
+        env:
+          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+          ONEMAP_EMAIL: ${{ secrets.ONEMAP_EMAIL }}
+          ONEMAP_PASSWORD: ${{ secrets.ONEMAP_PASSWORD }}
+        run: |
+          python3 - <<'PY' > secrets.json
+          import json, os
+          names = ["GOOGLE_MAPS_API_KEY", "ONEMAP_EMAIL", "ONEMAP_PASSWORD"]
+          print(json.dumps({n: os.environ[n] for n in names if os.environ.get(n)}))
+          PY
+          if [ "$(cat secrets.json)" != "{}" ]; then
+            npx --yes wrangler@4 secret bulk secrets.json
+          else
+            echo "no routing secrets configured in GitHub; skipping"
+          fi
+          rm -f secrets.json
+
+      - name: Smoke test
+        run: |
+          url="${{ steps.deploy.outputs.url }}"
+          test -n "$url" || { echo "no workers.dev URL in deploy output"; exit 1; }
+          for i in 1 2 3 4 5 6; do
+            if curl -sf "$url/health"; then echo; exit 0; fi
+            sleep 5
+          done
+          echo "health check failed"; exit 1

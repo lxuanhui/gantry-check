@@ -165,33 +165,49 @@ curl "http://localhost:8787/rates/35?at=2026-09-21T08:10:00&vehicle=car"
 
 ## Deploy
 
-```sh
-npx wrangler d1 create gantry-check
-# paste the returned database_id into wrangler.jsonc (d1_databases[0].database_id)
-npx wrangler d1 migrations apply gantry-check --remote
-npx wrangler secret put GOOGLE_MAPS_API_KEY
-npx wrangler secret put ONEMAP_EMAIL
-npx wrangler secret put ONEMAP_PASSWORD
-uv run pywrangler deploy
-```
+`main` is production. Every push to `main` that touches the Worker, its config or the schema
+runs `.github/workflows/deploy.yml`, which applies D1 migrations, deploys the Worker with
+`pywrangler deploy`, mirrors the routing secrets into the Worker, and smoke-tests `/health`.
+Work on a branch, open a pull request (CI runs `ruff` and `pytest`), merge to deploy.
 
-Load a rate snapshot into the deployed D1 database the same way as locally, with `--remote`
-instead of `--local`:
+One-time setup:
 
-```sh
-npx wrangler d1 execute gantry-check --remote --file data/snapshots/snapshot.sql
-```
+1. Create the database and record its id in `wrangler.jsonc` (`d1_databases[0].database_id`):
+
+   ```sh
+   npx wrangler d1 create gantry-check
+   ```
+
+2. Add repository secrets (Settings → Secrets and variables → Actions):
+
+   | Secret | Used by | Notes |
+   |---|---|---|
+   | `CLOUDFLARE_API_TOKEN` | deploy, refresh | Workers Scripts edit + D1 edit + Account Settings read |
+   | `CLOUDFLARE_ACCOUNT_ID` | deploy, refresh | dashboard sidebar |
+   | `GOOGLE_MAPS_API_KEY` | deploy (mirrored into the Worker) | Routes API enabled |
+   | `ONEMAP_EMAIL`, `ONEMAP_PASSWORD` | deploy (mirrored into the Worker) | OneMap account |
+
+   With `gh`: `gh secret set NAME` reads the value from stdin.
+
+3. Push to `main`, then run the **Refresh ERP data** workflow once (manual dispatch, `push_to_d1`
+   on) to load the first rate snapshot into D1.
+
+A manual deploy from a laptop is still possible (`uv run pywrangler deploy` with
+`CLOUDFLARE_API_TOKEN` exported) but is not the normal path.
 
 ## GitHub Actions
 
 - **`ci.yml`** — on every push to `main` and every pull request: `ruff check`, `ruff format
   --check`, `pytest`.
+- **`deploy.yml`** — on push to `main` (paths-filtered) and manual dispatch: D1 migrations,
+  `pywrangler deploy`, `wrangler secret bulk` from the GitHub secrets above, `/health` smoke
+  test. Uses the `production` environment, so branch protection or required reviewers can be
+  attached to it.
 - **`refresh.yml`** — weekly, Sunday 20:17 UTC (Monday 04:17 SGT), plus manual dispatch with
   `allow_mismatch` and `push_to_d1` inputs. Runs `gantry-check refresh`, uploads the snapshot SQL
   and SQLite DB as a build artifact (90-day retention), and — on the scheduled run, or on manual
   dispatch with `push_to_d1` — applies migrations and pushes the snapshot to the remote D1
-  database. Requires repo secrets `CLOUDFLARE_API_TOKEN` (needs D1 edit permission) and
-  `CLOUDFLARE_ACCOUNT_ID`.
+  database.
 
 ## CLI reference
 
