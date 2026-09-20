@@ -48,8 +48,13 @@ REAL_TABLES = {
 #: Where data.gov.sg's poll endpoint sends us for the gantry GeoJSON (a signed S3 URL in real life).
 GANTRY_GEOJSON_URL = "https://example.test/gantry.geojson"
 
-#: Gantries the real GeoJSON leaves without a line; see `tests/test_gantry_lines.py`.
-GANTRIES_WITHOUT_LINES = "28,31,36,38,39,46,54,59,65,68,71,91,93"
+#: Gantries left without a line once the curated overrides have been applied: the automatic
+#: join misses 13 (see `tests/test_gantry_lines.py`), then `data/static/gantry_overrides.csv`
+#: gives 31 a line and takes 67's away. See `tests/test_overrides.py`.
+GANTRIES_WITHOUT_LINES = "28,36,38,39,46,54,59,65,67,68,71,91,93"
+
+#: The line the overrides file moves from gantry 67 (northbound slip road) to 31 (southbound).
+BRADDELL_SOUTHBOUND = "LINESTRING(103.862260 1.333367, 103.862578 1.333378)"
 
 HOLIDAYS = [
     PublicHoliday(date=date(2026, 1, 1), name="New Year's Day", is_major=False),
@@ -150,7 +155,8 @@ async def test_refresh_end_to_end(upstream: respx.MockRouter, tmp_path: Path) ->
         )
 
         assert result.gantry_count == 78
-        assert result.lines_matched == 65
+        assert result.lines_matched == 65  # the automatic join, before any override
+        assert result.overrides_applied == ["31", "67"]
         assert result.band_count > 0
         assert result.holiday_count == len(HOLIDAYS)
         assert result.effective_from == date(2026, 9, 7)
@@ -182,6 +188,7 @@ async def test_refresh_end_to_end(upstream: respx.MockRouter, tmp_path: Path) ->
         assert await repo.get_meta("last_refresh_mismatches") == str(len(result.mismatches))
         assert await repo.get_meta("gantry_lines_dataset") == GANTRY_GEOJSON_DATASET_ID
         assert await repo.get_meta("gantries_without_lines") == GANTRIES_WITHOUT_LINES
+        assert await repo.get_meta("gantry_overrides") == "31,67"
 
         # The gantry line is what lets Phase 2 tell one carriageway from the other.
         stored = {g.number: g for g in await repo.gantries()}
@@ -190,6 +197,12 @@ async def test_refresh_end_to_end(upstream: respx.MockRouter, tmp_path: Path) ->
         assert stored["35"].line_wkt == "LINESTRING(103.859255 1.346543, 103.859519 1.346641)"
         assert stored["35"].heading_deg is None  # a line across a carriageway is 180-ambiguous
         assert sum(1 for g in stored.values() if g.line_wkt) == 65
+
+        # The curated overrides: the auto-join gave the southbound CTE line to the northbound
+        # slip-road gantry 67, so the file clears 67 and hands the line to 31 instead.
+        assert stored["31"].line_wkt == BRADDELL_SOUTHBOUND
+        assert stored["31"].heading_deg is None
+        assert stored["67"].line_wkt is None
 
         total_bands = len(await repo.all_bands())
 
@@ -221,8 +234,34 @@ async def test_refresh_without_lines_leaves_every_gantry_a_bare_point(
             log=lambda _: None,
         )
         assert result.lines_matched == 0
+        assert result.overrides_applied == []
         assert all(g.line_wkt is None for g in await repo.gantries())
         assert await repo.get_meta("gantry_lines_dataset") is None
+
+
+async def test_refresh_without_overrides_keeps_the_raw_geometric_join(
+    upstream: respx.MockRouter, tmp_path: Path
+) -> None:
+    """`overrides_csv=None` shows what the curated file is correcting: 67 keeps the
+    southbound CTE line the geometric join wrongly handed it, and 31 gets nothing."""
+    with SqliteRepo(":memory:") as repo:
+        result = await run_refresh(
+            repo,
+            out_path=None,
+            allow_mismatch=True,
+            cache_dir=tmp_path / "cache",
+            overrides_csv=None,
+            log=lambda _: None,
+        )
+        assert result.lines_matched == 65
+        assert result.overrides_applied == []
+
+        stored = {g.number: g for g in await repo.gantries()}
+        assert stored["67"].line_wkt == BRADDELL_SOUTHBOUND
+        assert stored["31"].line_wkt is None
+        raw_join = "28,31,36,38,39,46,54,59,65,68,71,91,93"
+        assert await repo.get_meta("gantries_without_lines") == raw_join
+        assert await repo.get_meta("gantry_overrides") == ""
 
 
 async def test_refresh_tolerates_a_missing_next_year_holiday_dataset(

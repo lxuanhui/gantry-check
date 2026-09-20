@@ -30,6 +30,7 @@ project scrapes those tables directly.
 | Annex D zone list | DataMall API guide, bundled at `data/static/annex_d_zones.csv` | Zone labels (e.g. `CT4`) for each gantry | LTA DataMall Terms of Use (attribution required) |
 | Public holidays | data.gov.sg, MOM's "Singapore Public Holidays" collection (id `691`), current year + next year | Sunday/PH-free days, and picking the eve-of-major-PH rate tables | Singapore Open Data Licence |
 | LTA Gantry (GEOJSON) | data.gov.sg dataset `d_753090823cc9920ac41efaa6530c5893` | Gantry *lines* across the carriageway (106 WGS84 LineStrings), joined geometrically to the KML points so route matching can tell one carriageway from the other | Singapore Open Data Licence |
+| Gantry geometry overrides | Hand-curated, bundled at `data/static/gantry_overrides.csv` | Per-gantry corrections to the geometric line join, applied during `refresh` | This repository (see [Data quality caveats](#data-quality-caveats)) |
 
 The `v` index in the HTML table URL selects vehicle class: `0` car/taxi/LGV, `1` motorcycle, `2`
 HGV/small bus, `3` VHGV/big bus. The `d` index selects day type: `0` weekday, `1` Saturday, `2`
@@ -339,9 +340,15 @@ and turns it into a list of crossed gantries and charges (`matching/crossings.py
   between two nearby carriageways. As of the refresh on 21 September 2026, 65 of the 78 gantries
   have a line; the rest fall back to point matching.
 - Point-matched today (direction unverified): **28, 59** (just past the 60 m join radius); **36,
-  38, 39, 65, 91, 93** (the OneMotoring point sits 100–145 m from the nearest line); **31, 46, 54,
-  68** (no line in the dataset carries their number at all); **71** (Woodsville Tunnel — no
-  surface structure exists in the dataset to give it a line).
+  38, 39, 65, 91, 93** (the OneMotoring point sits 100–145 m from the nearest line); **46, 54,
+  68** (no line in the dataset carries their number at all); **67** (its auto-joined line was
+  cleared by an override, below); **71** (Woodsville Tunnel — no surface structure exists in the
+  dataset to give it a line).
+- Line inferred from route evidence, unverified on imagery: gantry **31** (CTE after Braddell
+  Road). Its line was assigned by an override rather than by the join; see below.
+- Joined at the edge of the radius, unverified: gantries **20** (Havelock Road/CTE Exit, 57 m) and
+  **34** (CTE from Balestier Road, 53 m). Both are inside the 60 m radius only just, so the line
+  each one picked up may belong to a neighbouring structure.
 - Known false-positive risk: gantry **68** (a CTE slip road to the PIE) is point-matched, and its
   point lies within the 15 m point-matching radius of the CTE mainline, so a mainline route can be
   wrongly charged for it. Gantries **50** and **55** each joined two parallel lines, which may
@@ -349,3 +356,28 @@ and turns it into a list of crossed gantries and charges (`matching/crossings.py
 - Crossing times are estimates — `depart_at` plus the route's cumulative duration to that point,
   not a live read of conditions at the moment of crossing. A crossing estimated within a minute or
   two of a rate band boundary can land on either side of it.
+
+**Manual overrides.** `data/static/gantry_overrides.csv` (`number,line_wkt,heading_deg,note`) is
+applied by `refresh` immediately after the geometric join, for the cases where that join is known
+to be wrong. A row *replaces* the gantry's `line_wkt` and `heading_deg` with its own values, and an
+empty cell means `NULL` — so an empty `line_wkt` clears a bad auto-join and drops the gantry back to
+point matching. An override naming a gantry that is no longer in the KML logs a warning and is
+skipped, so a stale row cannot fail a scheduled refresh. The numbers applied are recorded in the
+`gantry_overrides` meta key.
+
+Two rows are seeded, both at the CTE/PIE/Braddell interchange, where four OneMotoring points (31,
+46, 67, 68) sit within 40 m of each other while the real gantries are spread over 200 m, and all
+three lines there are unnumbered:
+
+- **67** (PIE to CTE Northbound before Braddell Road) — line cleared. The join gave it
+  `LINESTRING(103.862260 1.333367, 103.862578 1.333378)`, which only *southbound* routes cross on
+  both routing engines; a northbound slip-road gantry cannot sit on it.
+- **31** (CTE after Braddell Road) — given that line instead. It is the only 35 m
+  (mainline-width) unnumbered line in the cluster and is crossed only by southbound routes. This is
+  inferred from route evidence, not checked against imagery; replace it if imagery disagrees.
+
+To add an override for gantry **68** (or any other point-matched gantry), draw the gantry's span
+across the carriageway on imagery, read off the two end points, and add a row with
+`LINESTRING(lng lat, lng lat)` — longitude first, latitude second, both in WGS84 decimal degrees.
+Leave `heading_deg` empty unless you know the traffic direction: a line across a carriageway is
+itself 180°-ambiguous. Always fill in `note` with the evidence.

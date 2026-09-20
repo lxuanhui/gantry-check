@@ -7,7 +7,7 @@ This is the only module that wires the pure parsers in `gantry_check.ingest` to 
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 from datetime import UTC, date, datetime
 from pathlib import Path
 
@@ -30,6 +30,7 @@ from gantry_check.ingest.gantry_lines import (
 from gantry_check.ingest.holidays import fetch_holidays
 from gantry_check.ingest.html_rates import parse_html_table
 from gantry_check.ingest.kml_gantries import load_zones, parse_kml
+from gantry_check.ingest.overrides import apply_overrides, load_overrides
 from gantry_check.ingest.pdf_rates import compare, parse_rates_pdf
 from gantry_check.ingest.sources import (
     KML_URL,
@@ -44,6 +45,7 @@ from gantry_check.repo.sqlite import SqliteRepo
 #: Repository root -- src/gantry_check/ingest/refresh.py -> parents[3].
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_ZONES_CSV = PROJECT_ROOT / "data" / "static" / "annex_d_zones.csv"
+DEFAULT_OVERRIDES_CSV = PROJECT_ROOT / "data" / "static" / "gantry_overrides.csv"
 
 HTTP_TIMEOUT_S = 30.0
 USER_AGENT = "gantry-check/0.1 (+https://github.com/)"
@@ -66,6 +68,8 @@ class RefreshResult:
     html_sha256: str
     pdf_sha256: str
     lines_matched: int = 0  # gantries that got a `line_wkt` from LTA's gantry GeoJSON
+    #: Gantries whose geometry a curated override replaced after the automatic join.
+    overrides_applied: list[str] = field(default_factory=list)
     sql_path: Path | None = None
 
 
@@ -126,6 +130,7 @@ async def run_refresh(
     async_client: httpx.AsyncClient | None = None,
     now: datetime | None = None,
     zones_csv: Path | None = None,
+    overrides_csv: Path | None = DEFAULT_OVERRIDES_CSV,
     log: Callable[[str], None] = print,
 ) -> RefreshResult:
     """Fetch gantries, rates and holidays, cross-check them, and write an active snapshot.
@@ -148,6 +153,7 @@ async def run_refresh(
             include_lines=include_lines,
             fetched_at=fetched_at,
             zones_csv=zones_csv,
+            overrides_csv=overrides_csv,
             log=log,
         )
 
@@ -163,6 +169,7 @@ async def run_refresh(
             include_lines=include_lines,
             fetched_at=fetched_at,
             zones_csv=zones_csv,
+            overrides_csv=overrides_csv,
             log=log,
         )
 
@@ -192,6 +199,7 @@ async def _run(
     include_lines: bool,
     fetched_at: datetime,
     zones_csv: Path | None,
+    overrides_csv: Path | None,
     log: Callable[[str], None],
 ) -> RefreshResult:
     await repo.apply_migrations()
@@ -210,13 +218,29 @@ async def _run(
     #     would charge a route travelling the opposite way.
     lines_matched = 0
     without_lines: list[str] = []
+    overrides_applied: list[str] = []
     if include_lines:
         log(f"fetching gantry lines from data.gov.sg dataset {GANTRY_GEOJSON_DATASET_ID}")
         lines = parse_gantry_lines(fetch_gantry_geojson(client, cache_dir))
         gantries, line_stats = attach_lines(gantries, lines)
         lines_matched = line_stats.gantries_with_lines
-        without_lines = line_stats.gantries_without_lines
-        log(f"  lines: {line_stats.summary(len(gantries))}")
+
+        # 1c. Curated corrections on top of the geometric join, where it is known to be wrong.
+        if overrides_csv is not None:
+            gantries, overrides_applied = apply_overrides(
+                gantries, load_overrides(overrides_csv), log=log
+            )
+            applied = ", ".join(overrides_applied) or "none"
+            log(f"  overrides: applied {len(overrides_applied)} ({applied})")
+
+        # Everything downstream cares about the *post-override* state, not the raw join.
+        without_lines = [g.number for g in gantries if g.line_wkt is None]
+        final_stats = replace(
+            line_stats,
+            gantries_with_lines=len(gantries) - len(without_lines),
+            gantries_without_lines=without_lines,
+        )
+        log(f"  lines: {final_stats.summary(len(gantries))}")
 
     await repo.upsert_gantries(gantries)
 
@@ -282,6 +306,7 @@ async def _run(
     if include_lines:
         await repo.set_meta("gantry_lines_dataset", GANTRY_GEOJSON_DATASET_ID)
         await repo.set_meta("gantries_without_lines", ",".join(without_lines))
+        await repo.set_meta("gantry_overrides", ",".join(overrides_applied))
 
     # 7. Optionally emit the D1-loadable SQL for `wrangler d1 execute --file`.
     sql_path: Path | None = None
@@ -301,5 +326,6 @@ async def _run(
         html_sha256=html_sha256,
         pdf_sha256=pdf_sha256,
         lines_matched=lines_matched,
+        overrides_applied=overrides_applied,
         sql_path=sql_path,
     )

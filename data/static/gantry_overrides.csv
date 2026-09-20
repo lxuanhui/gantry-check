@@ -1,0 +1,3 @@
+number,line_wkt,heading_deg,note
+67,,,"auto-join attached the southbound CTE mainline line (crossed only by southbound routes on both engines); a northbound slip-road gantry cannot be there. Cleared; point-matched until a line is drawn."
+31,"LINESTRING(103.862260 1.333367, 103.862578 1.333378)",,"inferred, unverified on imagery: the only 35 m (mainline-width) unnumbered line in the cluster and crossed only by southbound routes. Replace if imagery disagrees."
