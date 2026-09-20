@@ -1,0 +1,109 @@
+<script type="text/javascript">
+var d = new Date();
+var curr_hour = d.getHours();
+var curr_min = d.getMinutes();
+var oCell1 = "";
+curr_min = curr_min + "";
+
+if (curr_min.length == 1)
+{
+	 curr_min = "0" + curr_min;
+}
+
+var curr_time = curr_hour + "" + curr_min;
+
+function setUp()
+{
+	 // 0700 - 0705
+	 if(curr_time >= 700 && curr_time < 705)
+	 {
+		 oCell1 = new setObj('row8', '#FFFF99', 'black');
+	 }
+
+	 // 0705 - 0800
+	 else if(curr_time >= 705 && curr_time < 800)
+	 {
+		 oCell1 = new setObj('row9', '#FFFF99', 'black');
+	 }
+
+	 // 0800 - 0805
+	 else if(curr_time >= 800 && curr_time < 805)
+	 {
+		 oCell1 = new setObj('row10', '#FFFF99', 'black');
+	 }
+
+	 // 0805 - 0925
+	 else if(curr_time >= 805 && curr_time < 925)
+	 {
+		 oCell1 = new setObj('row11', '#FFFF99', 'black');
+	 }
+
+	 // 0925 - 0930
+	 else if(curr_time >= 925 && curr_time < 930)
+	 {
+		 oCell1 = new setObj('row12', '#FFFF99', 'black');
+	 }
+
+	 // 0930 - 0955
+	 else if(curr_time >= 930 && curr_time < 955)
+	 {
+		 oCell1 = new setObj('row13', '#FFFF99', 'black');
+	 }
+
+	 // 0955 - 1000
+	 else if(curr_time >= 955 && curr_time < 1000)
+	 {
+		 oCell1 = new setObj('row14', '#FFFF99', 'black');
+	 }
+
+	 // 1000 - 2000
+	 else if(curr_time >= 1000 && curr_time <= 2000)
+	 {
+		 oCell1 = new setObj('row15', '#FFFF99', 'black');
+	 }
+
+} 
+
+onload = setUp; 
+
+function setObj(id,bgCol,color)
+{
+	 if(document.getElementById)
+	 {
+		 this.obj = document.getElementById(id).style;
+		 this.obj.backgroundColor=bgCol;
+		 this.obj.color=color;
+	 }
+	 else if(document.all)
+	 {
+		 this.obj = document.all[id].style;
+		 this.obj.backgroundColor=bgCol;
+		 this.obj.color=color;
+	 }
+	 else if(document.layers)
+	 {
+		 this.obj = document.layers[id];
+		 this.obj.bgColor=bgCol;
+		 this.obj.color=color;
+	 }
+	 return this.obj;
+
+}
+</script>
+
+
+<script src="//assets.adobedtm.com/1eb75970c001743639c14f07fc4541b489b1d558/satelliteLib-28ee5b80b3714f072ee8989e12d7f0fe3e40f333.js"></script><style type="text/css">
+	 .styler {background-color : #e8fefe; position: absolute; top: 0px; left:0px; font-size:9pt;border-collapse: collapse;} .styler td{padding:2px;} 
+</style>
+
+<table class="styler" width="260" border="1">
+	 <tr id="row8"><td>07:00 - 07:05</td><td>$1.00</td></tr>
+	 <tr id="row9"><td>07:05 - 08:00</td><td>$2.00</td></tr>
+	 <tr id="row10"><td>08:00 - 08:05</td><td>$2.50</td></tr>
+	 <tr id="row11"><td>08:05 - 09:25</td><td>$3.00</td></tr>
+	 <tr id="row12"><td>09:25 - 09:30</td><td>$2.00</td></tr>
+	 <tr id="row13"><td>09:30 - 09:55</td><td>$1.00</td></tr>
+	 <tr id="row14"><td>09:55 - 10:00</td><td>$0.50</td></tr>
+	 <tr id="row15"><td>10:00 - 20:00</td><td>$0.00</td></tr>
+</table>
+<br><br><script type="text/javascript">_satellite.pageBottom();</script>

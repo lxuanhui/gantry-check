@@ -1,0 +1,12 @@
+{
+	"name": "gantry-check",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"dev": "uv run pywrangler dev",
+		"deploy": "uv run pywrangler deploy"
+	},
+	"devDependencies": {
+		"wrangler": "^4.0.0"
+	}
+}

@@ -1,0 +1,54 @@
+<script type="text/javascript">
+var d = new Date();
+var curr_hour = d.getHours();
+var curr_min = d.getMinutes();
+var oCell1 = "";
+curr_min = curr_min + "";
+
+if (curr_min.length == 1)
+{
+	 curr_min = "0" + curr_min;
+}
+
+var curr_time = curr_hour + "" + curr_min;
+
+function setUp()
+{
+} 
+
+onload = setUp; 
+
+function setObj(id,bgCol,color)
+{
+	 if(document.getElementById)
+	 {
+		 this.obj = document.getElementById(id).style;
+		 this.obj.backgroundColor=bgCol;
+		 this.obj.color=color;
+	 }
+	 else if(document.all)
+	 {
+		 this.obj = document.all[id].style;
+		 this.obj.backgroundColor=bgCol;
+		 this.obj.color=color;
+	 }
+	 else if(document.layers)
+	 {
+		 this.obj = document.layers[id];
+		 this.obj.bgColor=bgCol;
+		 this.obj.color=color;
+	 }
+	 return this.obj;
+
+}
+</script>
+
+
+<script src="//assets.adobedtm.com/1eb75970c001743639c14f07fc4541b489b1d558/satelliteLib-28ee5b80b3714f072ee8989e12d7f0fe3e40f333.js"></script><style type="text/css">
+	 .styler {background-color : #e8fefe; position: absolute; top: 0px; left:0px; font-size:9pt;border-collapse: collapse;} .styler td{padding:2px;} 
+</style>
+
+<table class="styler" width="260" border="1">
+<tr><td>Not in operation.</td></tr>
+</table>
+<br><br><script type="text/javascript">_satellite.pageBottom();</script>

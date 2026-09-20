@@ -1,0 +1,88 @@
+<script type="text/javascript">
+var d = new Date();
+var curr_hour = d.getHours();
+var curr_min = d.getMinutes();
+var oCell1 = "";
+curr_min = curr_min + "";
+
+if (curr_min.length == 1)
+{
+	 curr_min = "0" + curr_min;
+}
+
+var curr_time = curr_hour + "" + curr_min;
+
+function setUp()
+{
+	 // 0700 - 1100
+	 if(curr_time >= 700 && curr_time < 1100)
+	 {
+		 oCell1 = new setObj('row0', '#FFFF99', 'black');
+	 }
+
+	 // 1100 - 1105
+	 else if(curr_time >= 1100 && curr_time < 1105)
+	 {
+		 oCell1 = new setObj('row1', '#FFFF99', 'black');
+	 }
+
+	 // 1105 - 1855
+	 else if(curr_time >= 1105 && curr_time < 1855)
+	 {
+		 oCell1 = new setObj('row2', '#FFFF99', 'black');
+	 }
+
+	 // 1855 - 1900
+	 else if(curr_time >= 1855 && curr_time < 1900)
+	 {
+		 oCell1 = new setObj('row3', '#FFFF99', 'black');
+	 }
+
+	 // 1900 - 2000
+	 else if(curr_time >= 1900 && curr_time < 2000)
+	 {
+		 oCell1 = new setObj('row4', '#FFFF99', 'black');
+	 }
+
+} 
+
+onload = setUp; 
+
+function setObj(id,bgCol,color)
+{
+	 if(document.getElementById)
+	 {
+		 this.obj = document.getElementById(id).style;
+		 this.obj.backgroundColor=bgCol;
+		 this.obj.color=color;
+	 }
+	 else if(document.all)
+	 {
+		 this.obj = document.all[id].style;
+		 this.obj.backgroundColor=bgCol;
+		 this.obj.color=color;
+	 }
+	 else if(document.layers)
+	 {
+		 this.obj = document.layers[id];
+		 this.obj.bgColor=bgCol;
+		 this.obj.color=color;
+	 }
+	 return this.obj;
+
+}
+</script>
+
+
+<script src="//assets.adobedtm.com/1eb75970c001743639c14f07fc4541b489b1d558/satelliteLib-28ee5b80b3714f072ee8989e12d7f0fe3e40f333.js"></script><style type="text/css">
+	 .styler {background-color : #e8fefe; position: absolute; top: 0px; left:0px; font-size:9pt;border-collapse: collapse;} .styler td{padding:2px;} 
+</style>
+
+<table class="styler" width="260" border="1">
+	 <tr id="row0"><td>07:00 - 11:00</td><td>$0.00</td></tr>
+	 <tr id="row1"><td>11:00 - 11:05</td><td>$0.50</td></tr>
+	 <tr id="row2"><td>11:05 - 18:55</td><td>$1.00</td></tr>
+	 <tr id="row3"><td>18:55 - 19:00</td><td>$0.50</td></tr>
+	 <tr id="row4"><td>19:00 - 20:00</td><td>$0.00</td></tr>
+</table>
+<br><br><script type="text/javascript">_satellite.pageBottom();</script>

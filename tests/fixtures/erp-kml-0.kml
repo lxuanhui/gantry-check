@@ -1,0 +1,949 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+	<name>ERP</name>
+	<description></description>
+	<Style id="erpIcon">
+		<IconStyle>
+			<scale>1</scale>
+			<Icon><href>//datamall.lta.gov.sg/mapapp/pages/images/erp.png</href></Icon>
+		</IconStyle>
+	</Style>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Victoria Street (1)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/1-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.855723720646,1.30048971651456,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Nicoll Highway (2)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/2-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.86197962236814,1.2997619069211128,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Eu Tong Sen Street (3)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/3-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.840499538657,1.28096603435063,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Orchard Link (4)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/4-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:176px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.834915244616,1.30053587537632,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Lim Teck Kim Road (5)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/5-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.84187672392,1.27348399548328,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Anson Road (6)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/6-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.844315362385,1.27317443818723,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Tanjong Pagar Road (7)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/7-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.843088804269,1.27297680515358,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Bencoolen Street (9)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/9-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.853607815326,1.30288451574635,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Queen Street (10)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/10-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.8549538293,1.30130150713318,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>North Bridge Road (11)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/11-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.856513020817,1.29968660774609,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Oxley Road (12)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/12-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:176px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.841360584573,1.29917050409445,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Orchard Road (13)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/13-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:176px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.832410370474,1.30472626154639,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Orchard Turn (14)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/14-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:176px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.832493229636,1.30335266372165,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Killiney Road (15)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/15-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:176px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.839716951288,1.29937578008594,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Beach Road (16)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/16-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.857814112006,1.29818877827984,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Temasek Boulevard (17)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/17-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.860014893734,1.2960690982143,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Republic Boulevard (18)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/18-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.86245509676793,1.2959498515266994,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Havelock Road/Clemenceau Ave (19)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/19-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.841601506306,1.28845017923826,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Havelock Road/CTE Exit (20)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/20-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.842210338212,1.28787247651694,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Buyong Road (21)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/21-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:176px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.843117571359,1.30053526292666,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Kramat Road (22)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/22-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:176px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.842011763745,1.30160724766252,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>River Valley Road (23)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/23-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.843858729201,1.29295672712952,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Merchant Road/Clemenceau Ave (24)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/24-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.84240226069,1.29004484661211,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Merchant Road/CTE Exit (25)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/25-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.844212960053,1.2888685244196,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Clemenceau Ave (26)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/26-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:176px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.843762372922,1.29783327881683,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Cairnhill Road (27)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/27-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:176px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.837475783768,1.30566826762847,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Central Boulevard (28)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/28-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.86004611447432,1.2747072751589077,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Maxwell Road (29)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/29-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.85006998808403,1.274603936926006,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>ECP to City (30)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/30-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.8767,1.29527,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>CTE after Braddell Road (31)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/31-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:328px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.862319900553,1.33429776029387,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>PIE after Kallang Bahru on Woodsville Flyover (32)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/32-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:309px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.870532957615,1.32632947958352,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>CTE from Serangoon Road (33)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/33-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:328px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.864570397885,1.32910418687177,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>CTE from Balestier Road (34)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/34-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:328px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.85211100924,1.31845461108959,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>CTE before Braddell Road (35)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/35-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:233px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.859544595156,1.34630898728722,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>AYE to City before Alexandra Road (36)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/36-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:252px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.795725547986,1.28740121634148,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>PIE to Changi after Adam Road Exit (37)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/37-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:214px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.820069683038,1.33059597770337,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>PIE to Changi / Whitley Road (38)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/38-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:214px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.829176882637,1.32729264502703,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Thomson Road after Toa Payoh Rise (39)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/39-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.83729764431,1.33727678080648,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Bendemeer Road (40)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/40-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.86842,1.32735,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Tuasbound AYE After North Buona Vista (41)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/41-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:328px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.77648,1.30122,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>PIE into CTE (42)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/42-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:328px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.86457345379,1.32897426417223,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Dunearn Road / Wayang Satu Flyover (43)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/43-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.823355598617,1.32167523048838,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Dunearn Road / Whitley Road (44)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/44-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.825323756791,1.32113469831557,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>PIE slip road to Bendemeer Road (45)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/45-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:309px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.87041,1.32622,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>CTE Northbound after PIE (46)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/46-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:233px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.862158627957,1.33403731711135,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Orchard Road after YMCA (47)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/47-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:176px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.847854469115,1.2981570501332,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Orchard Road after Handy Road (48)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/48-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.847814431076,1.29872030869066,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Fort Canning Tunnel (49)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/49-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:176px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.846373081041,1.29776731983024,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>KPE Southbound after Defu Flyover (50)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/50-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:347px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.90342026314386,1.359544930873536,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>CTE Northbound before exit to PIE (51)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/51-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:176px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.860595050264,1.3261603219109,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Clementi Avenue 6 into AYE (City) (52)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/52-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:461px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.76085,1.31514,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Clementi Avenue 2 into AYE (City) (53)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/53-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:461px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.76641,1.30882,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Bt Timah Expressway (Sb betw Dairy Farm Rd & PIE) (54)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/54-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.785584072373,1.35497619417284,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Upper Bt Timah Rd Southbound after Hume Ave (55)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/55-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.769678291571,1.35326083005851,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Toa Payoh Lorong 6 (56)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/56-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.853256089,1.34062171746891,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Kallang Bahru (57)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/57-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.872905099004,1.32197490315522,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Geylang Bahru (58)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/58-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.871637787947,1.32036043005917,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Upper Boon Keng Road (59)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/59-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.870020071292,1.31351569478552,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Eu Tong Seng Street at Central (60)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/60-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.847470112542,1.28923743019218,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>New Bridge Road before Upper Circular Road (61)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/61-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.847742558347,1.28930308488518,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>South Bridge Road before Upper Circular Road (62)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/62-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.848870707579,1.28837230469095,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Fullerton Road eastbound at Fullerton Hotel (63)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/63-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.853618191657,1.28613925827856,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Fullerton Road westbound at One Fullerton (64)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/64-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.853716359531,1.28600751718741,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>PIE westbound before Eunos Link (65)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/65-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:252px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.912442043008,1.32898761576127,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Bayfront Ave towards Raffles Ave (66)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/66-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.86069874875204,1.2854876327193394,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>PIE to CTE Northbound before Braddell Road (67)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/67-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:233px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.862011304094,1.33379255155127,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>CTE Slip Road to PIE (Changi) / Serangoon Road (68)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/68-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:328px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.862410215902,1.33429942187613,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Bayfront Avenue towards Marina Boulevard (69)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/69-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.8608837858162,1.2854822325527882,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Geylang Road (70)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/70-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.87074880706605,1.3100764375399676,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Woodsville Tunnel (71)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/71-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.86804,1.32567,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Sheares Avenue towards Sheares Link (72)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/72-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.8615171,1.2842371,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>ECP Eastbound before exit to KPE (73)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/73-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.87229,1.29551,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Citybound AYE After Jurong Town Hall (74)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/74-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:461px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.75874,1.31633,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>KPE Southbound exit to ECP (City) (80)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/80-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.875221773091,1.29379824000824,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>MCE Westbound exit to Marina Coastal Drive (90)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/90-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.86738655113764,1.2750400109219449,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>MCE Westbound before exit to Maxwell Road (91)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/91-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:100px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.85555839574523,1.2713490987813139,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>Marina Boulevard to MCE Eastbound (92)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/92-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:176px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.86588748754765,1.2749698542983376,0
+		</coordinates></Point>
+	</Placemark>
+	<Placemark>
+		<name><![CDATA[<div id="myPopupName" name="erp"><table width="280px"><tr><td>MCE Eastbound before exit to Central Boulevard (93)</td></tr></table></div>]]></name>
+		<description>
+		<![CDATA[<div class="myPopupDescERP" id="myPopupDesc">
+		<table width="288px" border="0" >
+<tr><td><iframe src="//datamall.lta.gov.sg/mapapp/pages/ddls/93-ddl.html" id="myDropdownList" frameborder="0" scrolling="no" style="position: block; width:300px; height:176px; border:0;"></iframe></td></tr></table></div>]]>
+		</description>
+		<styleUrl>#erpIcon</styleUrl>
+		<Point><coordinates>
+			103.85559594099307,1.2715461314821868,0
+		</coordinates></Point>
+	</Placemark>
+</Document>
+</kml>

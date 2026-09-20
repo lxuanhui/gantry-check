@@ -1,0 +1,54 @@
+<script type="text/javascript">
+function display()
+{
+	 var rateTableId = 'rate-table-' + document.getElementById('vehicleType').value + '-' + document.getElementById('dayType').value;
+
+	 document.querySelectorAll('iframe.rate-table').forEach(iframe => {
+		 iframe.style.visibility = "hidden";
+	 });
+
+	 document.getElementById(rateTableId).style.visibility = "visible";
+}
+</script>
+
+<script src="//assets.adobedtm.com/1eb75970c001743639c14f07fc4541b489b1d558/satelliteLib-28ee5b80b3714f072ee8989e12d7f0fe3e40f333.js"></script><style type="text/css">
+	p { margin: 10px 0; }
+	.iframestyle { position: absolute; top: 60px; width: 270px; height: 450px; visibility: hidden; }
+	.selectstyle { width: 260px; font-size: 10px; }
+</style>
+
+<body onLoad="javascript:display();">
+<p>
+	 <select class="selectstyle" id="vehicleType" size="1" onChange="javascript:display();">
+	 <option value="0">Passenger Cars/Light Goods Vehicles/Taxis</option>
+	 <option value="1">Motorcycles</option>
+	 <option value="2">Heavy Goods Vehicles/Small Buses</option>
+	 <option value="3">Very Heavy Goods Vehicles/Big Buses</option>
+	 </select>
+</p>
+<p>
+	 <select class="selectstyle" id="dayType" size="1" onChange="javascript:display();">
+	 <option value="0">Weekdays</option>
+	 <option value="1">Saturday</option>
+	 <option value="2">Eve of Major Public Holiday (Weekdays)</option>
+	 <option value="3">Eve of Major Public Holiday (Saturday)</option>
+	 </select>
+</p>
+<iframe id="rate-table-0-0" class="rate-table iframestyle" src="../tables/35-table-0-0.html" frameborder="0"></iframe>
+<iframe id="rate-table-0-1" class="rate-table iframestyle" src="../tables/35-table-0-1.html" frameborder="0"></iframe>
+<iframe id="rate-table-0-2" class="rate-table iframestyle" src="../tables/35-table-0-2.html" frameborder="0"></iframe>
+<iframe id="rate-table-0-3" class="rate-table iframestyle" src="../tables/35-table-0-3.html" frameborder="0"></iframe>
+<iframe id="rate-table-1-0" class="rate-table iframestyle" src="../tables/35-table-1-0.html" frameborder="0"></iframe>
+<iframe id="rate-table-1-1" class="rate-table iframestyle" src="../tables/35-table-1-1.html" frameborder="0"></iframe>
+<iframe id="rate-table-1-2" class="rate-table iframestyle" src="../tables/35-table-1-2.html" frameborder="0"></iframe>
+<iframe id="rate-table-1-3" class="rate-table iframestyle" src="../tables/35-table-1-3.html" frameborder="0"></iframe>
+<iframe id="rate-table-2-0" class="rate-table iframestyle" src="../tables/35-table-2-0.html" frameborder="0"></iframe>
+<iframe id="rate-table-2-1" class="rate-table iframestyle" src="../tables/35-table-2-1.html" frameborder="0"></iframe>
+<iframe id="rate-table-2-2" class="rate-table iframestyle" src="../tables/35-table-2-2.html" frameborder="0"></iframe>
+<iframe id="rate-table-2-3" class="rate-table iframestyle" src="../tables/35-table-2-3.html" frameborder="0"></iframe>
+<iframe id="rate-table-3-0" class="rate-table iframestyle" src="../tables/35-table-3-0.html" frameborder="0"></iframe>
+<iframe id="rate-table-3-1" class="rate-table iframestyle" src="../tables/35-table-3-1.html" frameborder="0"></iframe>
+<iframe id="rate-table-3-2" class="rate-table iframestyle" src="../tables/35-table-3-2.html" frameborder="0"></iframe>
+<iframe id="rate-table-3-3" class="rate-table iframestyle" src="../tables/35-table-3-3.html" frameborder="0"></iframe>
+<script type="text/javascript">_satellite.pageBottom();</script></body>
+

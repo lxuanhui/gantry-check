@@ -1,0 +1,19 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "gantry-check",
+	"main": "src/entry.py",
+	"compatibility_date": "2026-09-20",
+	"compatibility_flags": ["python_workers"],
+	"observability": { "enabled": true },
+	"vars": {
+		"ROUTING_ENGINE": "google"
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "gantry-check",
+			"database_id": "REPLACE_WITH_WRANGLER_D1_CREATE_OUTPUT",
+			"migrations_dir": "migrations"
+		}
+	]
+}

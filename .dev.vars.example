@@ -1,0 +1,4 @@
+# Secrets for `wrangler dev` (copy to .dev.vars, gitignored). In prod use `wrangler secret put`.
+GOOGLE_MAPS_API_KEY=
+ONEMAP_EMAIL=
+ONEMAP_PASSWORD=
