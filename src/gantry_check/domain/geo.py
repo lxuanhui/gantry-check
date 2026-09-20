@@ -89,6 +89,20 @@ def _encode_value(value: int) -> str:
     return "".join(chunks)
 
 
+def _parse_coord_list(body: str, wkt: str, label: str = "LINESTRING") -> list[LatLng]:
+    """Parse a bare `lng lat, lng lat, ...` coordinate list (no surrounding parens)."""
+    points: list[LatLng] = []
+    for raw in body.split(","):
+        parts = raw.split()
+        if len(parts) < 2:
+            raise ValueError(f"malformed coordinate {raw!r} in {wkt!r}")
+        lng, lat = float(parts[0]), float(parts[1])
+        points.append(LatLng(lat=lat, lng=lng))
+    if not points:
+        raise ValueError(f"empty {label}: {wkt!r}")
+    return points
+
+
 def parse_linestring_wkt(wkt: str) -> list[LatLng]:
     """Parse `LINESTRING(lng lat, lng lat, ...)` (WKT is x=lng, y=lat) into points."""
     text = wkt.strip()
@@ -99,17 +113,48 @@ def parse_linestring_wkt(wkt: str) -> list[LatLng]:
     close_paren = text.rfind(")")
     if open_paren == -1 or close_paren <= open_paren:
         raise ValueError(f"malformed LINESTRING: {wkt!r}")
+    return _parse_coord_list(text[open_paren + 1 : close_paren], wkt)
 
-    points: list[LatLng] = []
-    for raw in text[open_paren + 1 : close_paren].split(","):
-        parts = raw.split()
-        if len(parts) < 2:
-            raise ValueError(f"malformed coordinate {raw!r} in {wkt!r}")
-        lng, lat = float(parts[0]), float(parts[1])
-        points.append(LatLng(lat=lat, lng=lng))
-    if not points:
-        raise ValueError(f"empty LINESTRING: {wkt!r}")
-    return points
+
+def _paren_groups(body: str, wkt: str) -> list[str]:
+    """Split `(a b, c d),(e f, g h)` into its top-level parenthesised groups."""
+    groups: list[str] = []
+    depth = 0
+    start = 0
+    for i, char in enumerate(body):
+        if char == "(":
+            if depth == 0:
+                start = i + 1
+            depth += 1
+        elif char == ")":
+            depth -= 1
+            if depth == 0:
+                groups.append(body[start:i])
+            elif depth < 0:
+                raise ValueError(f"malformed MULTILINESTRING: {wkt!r}")
+    if depth != 0:
+        raise ValueError(f"malformed MULTILINESTRING: {wkt!r}")
+    return groups
+
+
+def parse_wkt_lines(wkt: str) -> list[list[LatLng]]:
+    """Parse `LINESTRING(...)` or `MULTILINESTRING((...),(...))` into one point list per line.
+
+    A gantry's geometry is one line per carriageway, so a MULTILINESTRING yields several
+    independent lines; a LINESTRING yields a single-element list.
+    """
+    text = wkt.strip()
+    upper = text.upper()
+    if upper.startswith("MULTILINESTRING"):
+        open_paren = text.find("(")
+        close_paren = text.rfind(")")
+        if open_paren == -1 or close_paren <= open_paren:
+            raise ValueError(f"malformed MULTILINESTRING: {wkt!r}")
+        groups = _paren_groups(text[open_paren + 1 : close_paren], wkt)
+        if not groups:
+            raise ValueError(f"empty MULTILINESTRING: {wkt!r}")
+        return [_parse_coord_list(g, wkt, "MULTILINESTRING") for g in groups]
+    return [parse_linestring_wkt(text)]
 
 
 # --------------------------------------------------------------------------- distances

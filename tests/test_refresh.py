@@ -25,6 +25,8 @@ from gantry_check.domain.models import (
 )
 from gantry_check.ingest import refresh as refresh_module
 from gantry_check.ingest import sources
+from gantry_check.ingest.datagov import POLL_DOWNLOAD_URL
+from gantry_check.ingest.gantry_lines import GANTRY_GEOJSON_DATASET_ID
 from gantry_check.ingest.refresh import RefreshError, run_refresh
 from gantry_check.ingest.sources import KML_URL, RATES_ZIP_URL, html_table_url
 from gantry_check.repo.sqlite import SqliteRepo
@@ -42,6 +44,12 @@ REAL_TABLES = {
     ("1", VehicleType.CAR, DayType.WEEKDAY): "1-table-0-0.html",
     ("47", VehicleType.CAR, DayType.WEEKDAY): "47-table-0-0.html",
 }
+
+#: Where data.gov.sg's poll endpoint sends us for the gantry GeoJSON (a signed S3 URL in real life).
+GANTRY_GEOJSON_URL = "https://example.test/gantry.geojson"
+
+#: Gantries the real GeoJSON leaves without a line; see `tests/test_gantry_lines.py`.
+GANTRIES_WITHOUT_LINES = "28,31,36,38,39,46,54,59,65,68,71,91,93"
 
 HOLIDAYS = [
     PublicHoliday(date=date(2026, 1, 1), name="New Year's Day", is_major=False),
@@ -84,6 +92,16 @@ def upstream() -> Iterator[respx.MockRouter]:
             return_value=httpx.Response(200, content=(FIXTURES / "erp-kml-0.kml").read_bytes())
         )
         router.get(RATES_ZIP_URL).mock(return_value=httpx.Response(200, content=_rates_zip()))
+        router.get(POLL_DOWNLOAD_URL.format(dataset_id=GANTRY_GEOJSON_DATASET_ID)).mock(
+            return_value=httpx.Response(
+                200, json={"data": {"status": "DOWNLOAD_SUCCESS", "url": GANTRY_GEOJSON_URL}}
+            )
+        )
+        router.get(GANTRY_GEOJSON_URL).mock(
+            return_value=httpx.Response(
+                200, text=(FIXTURES / "lta_gantry.geojson").read_text(encoding="utf-8")
+            )
+        )
         for key, filename in REAL_TABLES.items():
             router.get(html_table_url(*key)).mock(
                 return_value=httpx.Response(
@@ -132,6 +150,7 @@ async def test_refresh_end_to_end(upstream: respx.MockRouter, tmp_path: Path) ->
         )
 
         assert result.gantry_count == 78
+        assert result.lines_matched == 65
         assert result.band_count > 0
         assert result.holiday_count == len(HOLIDAYS)
         assert result.effective_from == date(2026, 9, 7)
@@ -161,6 +180,16 @@ async def test_refresh_end_to_end(upstream: respx.MockRouter, tmp_path: Path) ->
         assert await repo.get_meta("last_refresh_at") == "2026-09-20T04:00:00+00:00"
         assert await repo.get_meta("last_refresh_effective_from") == "2026-09-07"
         assert await repo.get_meta("last_refresh_mismatches") == str(len(result.mismatches))
+        assert await repo.get_meta("gantry_lines_dataset") == GANTRY_GEOJSON_DATASET_ID
+        assert await repo.get_meta("gantries_without_lines") == GANTRIES_WITHOUT_LINES
+
+        # The gantry line is what lets Phase 2 tell one carriageway from the other.
+        stored = {g.number: g for g in await repo.gantries()}
+        # One carriageway, and the file's two identical copies of it are de-duplicated, so
+        # gantry 35 gets a plain LINESTRING rather than a MULTILINESTRING.
+        assert stored["35"].line_wkt == "LINESTRING(103.859255 1.346543, 103.859519 1.346641)"
+        assert stored["35"].heading_deg is None  # a line across a carriageway is 180-ambiguous
+        assert sum(1 for g in stored.values() if g.line_wkt) == 65
 
         total_bands = len(await repo.all_bands())
 
@@ -177,6 +206,23 @@ async def test_refresh_end_to_end(upstream: respx.MockRouter, tmp_path: Path) ->
         reloaded = await fresh.active_snapshot()
         assert reloaded is not None
         assert reloaded.effective_from == date(2026, 9, 7)
+
+
+async def test_refresh_without_lines_leaves_every_gantry_a_bare_point(
+    upstream: respx.MockRouter, tmp_path: Path
+) -> None:
+    with SqliteRepo(":memory:") as repo:
+        result = await run_refresh(
+            repo,
+            out_path=None,
+            allow_mismatch=True,
+            cache_dir=tmp_path / "cache",
+            include_lines=False,
+            log=lambda _: None,
+        )
+        assert result.lines_matched == 0
+        assert all(g.line_wkt is None for g in await repo.gantries())
+        assert await repo.get_meta("gantry_lines_dataset") is None
 
 
 async def test_refresh_tolerates_a_missing_next_year_holiday_dataset(

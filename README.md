@@ -4,10 +4,13 @@ Estimates which Singapore ERP (Electronic Road Pricing) gantries a driving route
 given departure time, and the per-gantry and total charge — a sanity check against a Grab fare
 that supposedly includes ERP.
 
-**Phase 1 (this repo today):** ERP data ingestion, a rate-lookup API, and routing-engine wrappers
-(Google Routes, OneMap). You can already ask "what does gantry X charge a car at 8:10am on a
-Tuesday". **Phase 2 (not built):** matching a route's geometry against the gantry list and
-producing a full route estimate. `POST /estimate` exists and returns `501 Not Implemented`.
+**Phase 1:** ERP data ingestion, a rate-lookup API, and routing-engine wrappers (Google Routes,
+OneMap). You can already ask "what does gantry X charge a car at 8:10am on a Tuesday". **Phase 2
+(this repo today):** matching a route's geometry against the gantry list and producing a full
+route estimate. `POST /estimate` is live — it takes an origin, destination, and departure time,
+and returns the crossed gantries, their crossing times, and the total charge. See
+[How route matching works](#how-route-matching-works) and its
+[data quality caveats](#data-quality-caveats).
 
 ## Background
 
@@ -26,6 +29,7 @@ project scrapes those tables directly.
 | OneMotoring KML | `https://onemotoring.lta.gov.sg/mapapp/kml/erp-kml/erp-kml-0.kml` | Gantry coordinates (78 placemarks, gantry number embedded in the placemark name) | Public, undocumented |
 | Annex D zone list | DataMall API guide, bundled at `data/static/annex_d_zones.csv` | Zone labels (e.g. `CT4`) for each gantry | LTA DataMall Terms of Use (attribution required) |
 | Public holidays | data.gov.sg, MOM's "Singapore Public Holidays" collection (id `691`), current year + next year | Sunday/PH-free days, and picking the eve-of-major-PH rate tables | Singapore Open Data Licence |
+| LTA Gantry (GEOJSON) | data.gov.sg dataset `d_753090823cc9920ac41efaa6530c5893` | Gantry *lines* across the carriageway (106 WGS84 LineStrings), joined geometrically to the KML points so route matching can tell one carriageway from the other | Singapore Open Data Licence |
 
 The `v` index in the HTML table URL selects vehicle class: `0` car/taxi/LGV, `1` motorcycle, `2`
 HGV/small bus, `3` VHGV/big bus. The `d` index selects day type: `0` weekday, `1` Saturday, `2`
@@ -63,8 +67,9 @@ OneMap is used as a fallback if Google fails (the failure is recorded in the rou
 Setting `ROUTING_ENGINE=onemap` prefers OneMap instead, falling back to Google if OneMap creds are
 missing.
 
-Gantry crossing times (Phase 2) are estimated as `depart_at + cumulative route duration at that
-point`, not a separate traffic model.
+Gantry crossing times are estimated as `depart_at + cumulative route duration at that point`
+(`matching/estimate.py`), not a separate traffic model — see
+[How route matching works](#how-route-matching-works).
 
 ## Stack
 
@@ -112,7 +117,8 @@ Fetches all 78 gantries x 4 vehicle classes x 4 chargeable day types (1,248 pace
 the ERP Rates PDF, the OneMotoring KML, and public holidays for the current and next year; parses
 and cross-checks them; writes a new active rate snapshot to the SQLite DB at `--db` (older
 snapshots are kept, not deleted); and exports an idempotent SQL file at `--out` for loading into
-D1.
+D1. It also pulls LTA's gantry GeoJSON from data.gov.sg and attaches each gantry's line across
+the carriageway (65 of the 78 gantries match a line within 60 m; the rest keep a bare point).
 
 Flags:
 
@@ -141,9 +147,9 @@ Endpoints:
 | `GET /gantries` | All gantries: number, name, zone, coordinates, whether a carriageway line is known. |
 | `GET /rates/{gantry}?at=<ISO-8601>&vehicle=car` | Charge for one gantry at one instant. Naive `at` values are taken as Singapore time. `vehicle` is `car` \| `motorcycle` \| `hgv` \| `vhgv`. |
 | `GET /rates/{gantry}/table?vehicle=car&day_type=weekday` | The full band table for one gantry/vehicle/day type. `day_type` is `weekday` \| `saturday` \| `eve_major_ph_weekday` \| `eve_major_ph_saturday` \| `sunday_ph` (the last always returns an empty `bands` list — no ERP is charged). |
-| `POST /estimate` | Body: `{"origin": [lat, lng], "destination": [lat, lng], "depart_at": "<ISO-8601>", "vehicle": "car"}`. Currently returns `501` — Phase 2 route matching isn't built. |
+| `POST /estimate` | Body: `{"origin": [lat, lng], "destination": [lat, lng], "depart_at": "<ISO-8601>", "vehicle": "car"}`. `depart_at` is optional (default: now); naive values are taken as Singapore time. `vehicle` is `car` \| `motorcycle` \| `hgv` \| `vhgv`. An `engine` field is accepted but ignored — the routing engine is fixed by server config. |
 
-Example:
+Examples:
 
 ```sh
 curl "http://localhost:8787/rates/35?at=2026-09-21T08:10:00&vehicle=car"
@@ -162,6 +168,44 @@ curl "http://localhost:8787/rates/35?at=2026-09-21T08:10:00&vehicle=car"
   "effective_from": "2026-09-07"
 }
 ```
+
+```sh
+curl -X POST "http://localhost:8787/estimate" \
+  -H "content-type: application/json" \
+  -d '{"origin": [1.3691, 103.8454], "destination": [1.2840, 103.8515],
+       "depart_at": "2026-09-22T08:00:00", "vehicle": "car"}'
+```
+
+```json
+{
+  "engine": "google",
+  "summary": "CTE",
+  "distance_m": 14200.0,
+  "duration_s": 1320.0,
+  "depart_at": "2026-09-22T08:00:00+08:00",
+  "vehicle": "car",
+  "charges": [
+    {
+      "gantry": "35",
+      "name": "CTE before Braddell Road",
+      "zone_id": "CT4",
+      "crossed_at": "2026-09-22T08:11:20+08:00",
+      "day_type": "weekday",
+      "band": { "start": "08:00", "end": "08:30", "amount_cents": 300, "amount": "$3.00" },
+      "amount_cents": 300,
+      "amount": "$3.00",
+      "method": "line"
+    }
+  ],
+  "total_cents": 300,
+  "total": "$3.00",
+  "warnings": []
+}
+```
+
+Errors: `503` when no routing engine is configured (neither Google nor OneMap credentials are
+set), `502` when the routing engine call itself fails (bad API key, upstream error), `422` for a
+malformed request body (standard FastAPI/pydantic validation).
 
 ## Deploy
 
@@ -213,17 +257,24 @@ A manual deploy from a laptop is still possible (`uv run pywrangler deploy` with
 
 ```
 gantry-check refresh [--db PATH] [--out PATH] [--allow-mismatch] [--cache-dir PATH] [--year Y]
+                      [--no-lines]
 gantry-check rates GANTRY --at ISO [--vehicle car|motorcycle|hgv|vhgv] [--table] [--db PATH]
 gantry-check route --from LAT,LNG --to LAT,LNG [--engine google|onemap] [--depart-at ISO]
+gantry-check estimate --from LAT,LNG --to LAT,LNG [--depart-at ISO]
+                       [--vehicle car|motorcycle|hgv|vhgv] [--engine google|onemap] [--db PATH]
 ```
 
 - `refresh` — run the ingestion pipeline and write a new snapshot; see
-  [Refreshing data](#refreshing-data).
+  [Refreshing data](#refreshing-data). `--no-lines` skips deriving per-carriageway gantry lines
+  from the data.gov.sg GeoJSON, so every gantry falls back to point matching.
 - `rates` — look up the charge for one gantry at one instant against a local snapshot
   (`--db`, default `data/local.sqlite`); `--table` prints the full band table instead of a single
   lookup.
 - `route` — fetch a route between two coordinates from the chosen routing engine and print its
   distance, duration, and (with `--depart-at`) estimated crossing schedule.
+- `estimate` — price the gantries a route crosses against a local snapshot (`--db`, default
+  `data/local.sqlite`); prints each crossing (time, gantry, day type, band, amount, match method)
+  and the total. `--depart-at` defaults to now (naive values are SGT).
 
 ## Development
 
@@ -239,10 +290,11 @@ Layout of `src/gantry_check/`:
 domain/     daytype.py, geo.py, models.py, pricing.py   — pure logic, no I/O, Worker-safe
 repo/       base.py, sqlite.py, d1.py                    — storage backends behind one interface
 ingest/     sources.py, html_rates.py, pdf_rates.py,      — network + parsing for each upstream
-            kml_gantries.py, holidays.py                    source
+            kml_gantries.py, holidays.py, datagov.py,        source (datagov.py: shared
+            gantry_lines.py                                  data.gov.sg fetch/poll client)
 routing/    base.py, google.py, onemap.py, polyline.py   — routing engine wrappers + geometry
 api/        app.py                                       — FastAPI app (create_app)
-matching/                                                 — Phase 2, currently empty
+matching/   crossings.py, estimate.py                    — route <-> gantry matching and pricing
 cli.py                                                    — gantry-check entry point
 config.py                                                 — Settings (env / .env / Worker `env`)
 ```
@@ -251,20 +303,49 @@ config.py                                                 — Settings (env / .e
 `wrangler.jsonc`. Test fixtures — captured HTML tables for a few gantries, the KML file, and a
 snapshot PDF — are pinned under `tests/fixtures/` so parser tests don't depend on the network.
 
-## Phase 2 (not built): route matching design
+## How route matching works
 
-The plan for turning a `Route` (a polyline with cumulative duration at each point, from
-`routing/base.py`) into a list of crossed gantries and charges:
+`POST /estimate` (and `gantry-check estimate`) fetches a `Route` from the configured routing
+engine — a polyline with cumulative duration in seconds at each point, from `routing/base.py` —
+and turns it into a list of crossed gantries and charges (`matching/crossings.py`,
+`matching/estimate.py`):
 
-1. For each gantry with a `line_wkt` carriageway line, test each route segment for intersection
-   with that line, buffered by roughly 8 metres to absorb GPS/geometry noise; for gantries with
-   only a KML point (no line), instead test whether any route point passes within about 15 metres.
-2. Where a gantry has a known `heading_deg`, also check the route's local bearing against it, so a
-   route on the opposite carriageway or a crossing road isn't counted.
-3. At each detected crossing, interpolate the crossing time as `depart_at + cumulative_seconds`
-   for that point on the route.
-4. Classify that instant's day type (`day_type_for`) and vehicle class, then look up the
-   applicable rate band and amount from the active snapshot, same as `/rates/{gantry}`.
-5. Sum the per-gantry charges into a total, and return both engines' results side by side where
-   practical (Google vs. OneMap), since their polylines differ enough to change which gantries are
-   crossed.
+1. For each gantry with a `line_wkt` carriageway line (attached during `refresh` by
+   `ingest/gantry_lines.py`), the **line** method is used: a route segment matches when it
+   intersects that line, or passes within 8 metres of it (`DEFAULT_LINE_BUFFER_M`). This is
+   direction-aware in practice — a route on the correct carriageway doesn't come near the line for
+   the opposite one.
+2. For a gantry with only a KML point (no line), the **point** method is used instead: a route
+   segment matches when it passes within 15 metres of the point (`DEFAULT_POINT_RADIUS_M`). This
+   cannot tell which carriageway the route is on, so every point-matched crossing adds a
+   `"matched by proximity only"` warning to the response.
+3. Where a gantry's `heading_deg` is known, the route's local bearing at the matching segment must
+   also agree with it, so a route on the opposite carriageway or a crossing road isn't counted. No
+   gantry has `heading_deg` set today — a line across a carriageway is itself direction-ambiguous
+   by 180°, so nothing currently populates it.
+4. The crossing time is `depart_at + cumulative_seconds` interpolated to the matched point on the
+   route. That instant's day type (`day_type_for`) and the requested vehicle class are then used to
+   look up the applicable rate band and amount from the active snapshot, same as `/rates/{gantry}`.
+5. Each gantry is counted at most once, at its first crossing — a route that loops past the same
+   gantry twice is billed once, matching how a real journey is charged. Per-gantry charges are
+   summed into `total_cents`.
+
+### Data quality caveats
+
+- Gantry line geometry comes from data.gov.sg's "LTA Gantry (GEOJSON)" dataset (see
+  [Data sources and licences](#data-sources-and-licences)). It has no usable `type` field and
+  unreliable gantry numbers, so lines are joined to the OneMotoring KML points purely by geometry
+  — the nearest line within 60 m — with the file's own gantry number used only to break ties
+  between two nearby carriageways. As of the refresh on 21 September 2026, 65 of the 78 gantries
+  have a line; the rest fall back to point matching.
+- Point-matched today (direction unverified): **28, 59** (just past the 60 m join radius); **36,
+  38, 39, 65, 91, 93** (the OneMotoring point sits 100–145 m from the nearest line); **31, 46, 54,
+  68** (no line in the dataset carries their number at all); **71** (Woodsville Tunnel — no
+  surface structure exists in the dataset to give it a line).
+- Known false-positive risk: gantry **68** (a CTE slip road to the PIE) is point-matched, and its
+  point lies within the 15 m point-matching radius of the CTE mainline, so a mainline route can be
+  wrongly charged for it. Gantries **50** and **55** each joined two parallel lines, which may
+  include the line for the opposite carriageway rather than just their own.
+- Crossing times are estimates — `depart_at` plus the route's cumulative duration to that point,
+  not a live read of conditions at the moment of crossing. A crossing estimated within a minute or
+  two of a rate band boundary can land on either side of it.

@@ -1,4 +1,4 @@
-"""`gantry-check` command line: refresh the local snapshot, price a gantry, probe a route.
+"""`gantry-check` command line: refresh the local snapshot, price a gantry or a whole route.
 
 Deliberately thin -- every command is a few lines of argument shuffling over
 `gantry_check.ingest.refresh` and the pure domain modules.
@@ -11,6 +11,7 @@ import asyncio
 import os
 import sqlite3
 import sys
+from collections.abc import Sequence
 from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
@@ -22,6 +23,7 @@ from gantry_check.domain.daytype import day_type_for, to_sgt
 from gantry_check.domain.models import SGT, DayType, LatLng, VehicleType
 from gantry_check.domain.pricing import charge_cents, format_sgd
 from gantry_check.ingest.refresh import RefreshError, run_refresh
+from gantry_check.matching.estimate import estimate_trip
 from gantry_check.repo.sqlite import SqliteRepo
 from gantry_check.routing.base import RoutingError, build_engine
 
@@ -61,6 +63,15 @@ def _hhmm(minute: int) -> str:
     return f"{minute // 60:02d}:{minute % 60:02d}"
 
 
+def _print_table(headers: Sequence[str], rows: Sequence[Sequence[str]]) -> None:
+    widths = [len(h) for h in headers]
+    for row in rows:
+        for i, cell in enumerate(row):
+            widths[i] = max(widths[i], len(cell))
+    for line in (headers, *rows):
+        print("  ".join(cell.ljust(widths[i]) for i, cell in enumerate(line)).rstrip())
+
+
 def _open_repo(db: str) -> SqliteRepo:
     if db != ":memory:" and not Path(db).exists():
         raise SystemExit(f"error: no database at {db} -- run `gantry-check refresh` first")
@@ -79,6 +90,7 @@ def _cmd_refresh(args: argparse.Namespace) -> int:
                 allow_mismatch=args.allow_mismatch,
                 cache_dir=Path(args.cache_dir) if args.cache_dir else None,
                 years=args.years,
+                include_lines=not args.no_lines,
             )
         print()
         print(f"snapshot        {result.snapshot_id}")
@@ -186,6 +198,67 @@ def _cmd_route(args: argparse.Namespace) -> int:
         return 1
 
 
+# --------------------------------------------------------------------------- estimate
+
+
+def _cmd_estimate(args: argparse.Namespace) -> int:
+    settings = _settings()
+    if args.engine:
+        settings = replace(settings, routing_engine=args.engine)
+    origin = _parse_latlng(args.origin)
+    destination = _parse_latlng(args.destination)
+    depart_at = _parse_when(args.depart_at)
+    vehicle = VehicleType(args.vehicle)
+
+    async def go(repo: SqliteRepo) -> int:
+        async with httpx.AsyncClient(timeout=HTTP_TIMEOUT_S) as client:
+            engine = build_engine(settings, client)
+            result = await estimate_trip(engine, repo, origin, destination, depart_at, vehicle)
+
+        route = result.route
+        print(f"engine     {route.engine}")
+        print(f"summary    {route.summary or '(none)'}")
+        print(f"distance   {route.distance_m / 1000:.2f} km")
+        print(f"duration   {route.duration_s / 60:.1f} min")
+        print(f"depart     {result.depart_at.isoformat()}")
+        print(f"vehicle    {vehicle.value}")
+        print()
+
+        if not result.charges:
+            print("no gantries crossed")
+        else:
+            rows = [
+                [
+                    charge.crossed_at.strftime("%H:%M"),
+                    charge.gantry.number,
+                    charge.gantry.name,
+                    charge.day_type.value,
+                    "-"
+                    if charge.band is None
+                    else f"{_hhmm(charge.band.start_min)}-{_hhmm(charge.band.end_min)}",
+                    format_sgd(charge.amount_cents),
+                    charge.method,
+                ]
+                for charge in result.charges
+            ]
+            _print_table(("time", "gantry", "name", "day type", "band", "amount", "method"), rows)
+        print()
+        print(f"total {format_sgd(result.total_cents)}")
+        for warning in result.warnings:
+            print(f"warning    {warning}")
+        return 0
+
+    try:
+        with _open_repo(args.db) as repo:
+            return asyncio.run(go(repo))
+    except RoutingError as exc:
+        print(f"routing failed: {exc}", file=sys.stderr)
+        return 1
+    except sqlite3.OperationalError as exc:
+        print(f"error: unusable database {args.db}: {exc}", file=sys.stderr)
+        return 1
+
+
 # --------------------------------------------------------------------------- argparse
 
 
@@ -205,6 +278,11 @@ def _build_parser(settings: Settings) -> argparse.ArgumentParser:
         help="store the snapshot even when the HTML tables and the PDF disagree",
     )
     refresh.add_argument("--cache-dir", default=None, help="cache downloads under this directory")
+    refresh.add_argument(
+        "--no-lines",
+        action="store_true",
+        help="skip deriving per-carriageway gantry lines (point matching only)",
+    )
     refresh.add_argument(
         "--year",
         dest="years",
@@ -235,6 +313,21 @@ def _build_parser(settings: Settings) -> argparse.ArgumentParser:
     route.add_argument("--engine", default=None, choices=["google", "onemap"])
     route.add_argument("--depart-at", default=None, help="ISO-8601 instant (naive = SGT)")
     route.set_defaults(func=_cmd_route)
+
+    estimate = sub.add_parser("estimate", help="price the gantries a route crosses")
+    estimate.add_argument("--from", dest="origin", required=True, metavar="LAT,LNG")
+    estimate.add_argument("--to", dest="destination", required=True, metavar="LAT,LNG")
+    estimate.add_argument(
+        "--depart-at", default=None, help="ISO-8601 instant (naive = SGT; default: now)"
+    )
+    estimate.add_argument(
+        "--vehicle",
+        default=VehicleType.CAR.value,
+        choices=[v.value for v in VehicleType],
+    )
+    estimate.add_argument("--engine", default=None, choices=["google", "onemap"])
+    estimate.add_argument("--db", default=settings.local_db, help="SQLite file to read")
+    estimate.set_defaults(func=_cmd_estimate)
 
     return parser
 

@@ -12,13 +12,14 @@ from __future__ import annotations
 
 import csv
 import io
-import time
 from collections.abc import Iterable
 from datetime import date
 
 import httpx
 
 from gantry_check.domain.models import PublicHoliday
+from gantry_check.ingest.datagov import POLL_DOWNLOAD_URL as POLL_DOWNLOAD_URL  # re-export
+from gantry_check.ingest.datagov import download_dataset_text
 
 HOLIDAY_COLLECTION_ID = "691"
 COLLECTION_METADATA_URL = (
@@ -27,7 +28,6 @@ COLLECTION_METADATA_URL = (
 DATASET_METADATA_URL = (
     "https://api-production.data.gov.sg/v2/public/api/datasets/{dataset_id}/metadata"
 )
-POLL_DOWNLOAD_URL = "https://api-open.data.gov.sg/v1/public/api/datasets/{dataset_id}/poll-download"
 
 #: Holidays whose *eve* attracts the "eve of major public holiday" ERP rate tables.
 #: Matched on the exact (normalised) holiday name, so the "(Observed)" rows that MOM adds when a
@@ -42,9 +42,6 @@ MAJOR_HOLIDAY_NAMES = frozenset(
     }
 )
 _CHINESE_NEW_YEAR = "chinese new year"
-
-_POLL_ATTEMPTS = 5
-_POLL_DELAY_S = 1.0
 
 
 def _normalise_name(name: str) -> str:
@@ -119,25 +116,6 @@ def find_holiday_datasets(client: httpx.Client) -> dict[int, str]:
     return datasets
 
 
-def _download_dataset_csv(client: httpx.Client, dataset_id: str) -> str:
-    """Resolve a dataset's signed download URL and fetch it.
-
-    The first poll can come back still preparing the export, hence the retry.
-    """
-    url = POLL_DOWNLOAD_URL.format(dataset_id=dataset_id)
-    for attempt in range(_POLL_ATTEMPTS):
-        response = client.get(url)
-        response.raise_for_status()
-        payload = response.json().get("data") or {}
-        if payload.get("status") == "DOWNLOAD_SUCCESS" and payload.get("url"):
-            download = client.get(payload["url"], follow_redirects=True)
-            download.raise_for_status()
-            return download.text
-        if attempt < _POLL_ATTEMPTS - 1:
-            time.sleep(_POLL_DELAY_S)
-    raise RuntimeError(f"dataset {dataset_id} never reported DOWNLOAD_SUCCESS")
-
-
 def fetch_holidays(client: httpx.Client, years: list[int]) -> list[PublicHoliday]:
     """Fetch and flag Singapore public holidays for the given years."""
     datasets = find_holiday_datasets(client)
@@ -146,6 +124,6 @@ def fetch_holidays(client: httpx.Client, years: list[int]) -> list[PublicHoliday
         raise ValueError(f"data.gov.sg has no public holiday dataset for {missing}")
     holidays: list[PublicHoliday] = []
     for year in sorted(set(years)):
-        holidays.extend(parse_holidays_csv(_download_dataset_csv(client, datasets[year])))
+        holidays.extend(parse_holidays_csv(download_dataset_text(client, datasets[year])))
     holidays.sort(key=lambda holiday: (holiday.date, holiday.name))
     return mark_major(holidays)

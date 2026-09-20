@@ -6,19 +6,28 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from datetime import datetime
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
 from gantry_check import __version__
-from gantry_check.domain.daytype import day_type_for, minute_of_day, to_sgt
-from gantry_check.domain.models import CHARGEABLE_DAY_TYPES, DayType, RateBand, VehicleType
+from gantry_check.domain.daytype import day_type_for, to_sgt
+from gantry_check.domain.models import (
+    CHARGEABLE_DAY_TYPES,
+    DayType,
+    LatLng,
+    RateBand,
+    VehicleType,
+)
 from gantry_check.domain.pricing import charge_cents, format_sgd
+from gantry_check.matching.estimate import Estimate, estimate_trip
 from gantry_check.repo.base import Repo
+from gantry_check.routing.base import RoutingEngine, RoutingError
 
 RepoFactory = Callable[[Request], Repo]
+EngineFactory = Callable[[Request], RoutingEngine]
 
 
 class GantryOut(BaseModel):
@@ -57,10 +66,41 @@ class TableOut(BaseModel):
 
 
 class EstimateIn(BaseModel):
-    origin: tuple[float, float]
-    destination: tuple[float, float]
-    depart_at: datetime | None = None
+    origin: tuple[float, float] = Field(description="[lat, lng]")
+    destination: tuple[float, float] = Field(description="[lat, lng]")
+    depart_at: datetime | None = Field(
+        default=None, description="ISO-8601; naive values are Singapore time. Default: now."
+    )
     vehicle: VehicleType = VehicleType.CAR
+    engine: Literal["google", "onemap"] | None = Field(
+        default=None,
+        description="Accepted but ignored: the routing engine is chosen by server config.",
+    )
+
+
+class ChargeOut(BaseModel):
+    gantry: str
+    name: str
+    zone_id: str | None
+    crossed_at: datetime = Field(description="Estimated crossing time, Singapore time")
+    day_type: DayType
+    band: BandOut | None
+    amount_cents: int
+    amount: str
+    method: str = Field(description='"line" (carriageway geometry) or "point" (proximity)')
+
+
+class EstimateOut(BaseModel):
+    engine: str
+    summary: str
+    distance_m: float
+    duration_s: float
+    depart_at: datetime = Field(description="Singapore time")
+    vehicle: VehicleType
+    charges: list[ChargeOut]
+    total_cents: int
+    total: str
+    warnings: list[str]
 
 
 def _hhmm(minute: int) -> str:
@@ -73,6 +113,34 @@ def _band_out(b: RateBand) -> BandOut:
         end=_hhmm(b.end_min),
         amount_cents=b.amount_cents,
         amount=format_sgd(b.amount_cents),
+    )
+
+
+def _estimate_out(result: Estimate) -> EstimateOut:
+    return EstimateOut(
+        engine=result.route.engine,
+        summary=result.route.summary,
+        distance_m=result.route.distance_m,
+        duration_s=result.route.duration_s,
+        depart_at=result.depart_at,
+        vehicle=result.vehicle,
+        charges=[
+            ChargeOut(
+                gantry=c.gantry.number,
+                name=c.gantry.name,
+                zone_id=c.gantry.zone_id,
+                crossed_at=c.crossed_at,
+                day_type=c.day_type,
+                band=None if c.band is None else _band_out(c.band),
+                amount_cents=c.amount_cents,
+                amount=format_sgd(c.amount_cents),
+                method=c.method,
+            )
+            for c in result.charges
+        ],
+        total_cents=result.total_cents,
+        total=format_sgd(result.total_cents),
+        warnings=result.warnings,
     )
 
 
@@ -95,14 +163,17 @@ offset is given.</p>
 <li><a href="/rates/35/table?vehicle=car&amp;day_type=weekday">
 /rates/35/table?vehicle=car&amp;day_type=weekday</a>
  — the whole weekday table</li>
-<li><code>POST /estimate</code> — route cost estimate (phase 2)</li>
+<li><code>POST /estimate</code> — route cost estimate: which gantries a drive crosses,
+ when, and what each one charges.
+ Body: <code>{"origin": [1.3691, 103.8454], "destination": [1.2840, 103.8515],
+ "depart_at": "2026-09-22T08:00:00", "vehicle": "car"}</code></li>
 </ul>
 <p><a href="https://github.com/lxuanhui/gantry-check">Source on GitHub</a></p>
 </body></html>
 """
 
 
-def create_app(repo_factory: RepoFactory) -> FastAPI:
+def create_app(repo_factory: RepoFactory, engine_factory: EngineFactory | None = None) -> FastAPI:
     app = FastAPI(
         title="gantry-check",
         version=__version__,
@@ -111,6 +182,14 @@ def create_app(repo_factory: RepoFactory) -> FastAPI:
 
     def repo_for(request: Request) -> Repo:
         return repo_factory(request)
+
+    def engine_for(request: Request) -> RoutingEngine:
+        if engine_factory is None:
+            raise HTTPException(503, "no routing engine configured")
+        try:
+            return engine_factory(request)
+        except RoutingError as exc:
+            raise HTTPException(503, "no routing engine configured") from exc
 
     @app.get("/", response_class=HTMLResponse, include_in_schema=False)
     async def index() -> str:
@@ -195,12 +274,20 @@ def create_app(repo_factory: RepoFactory) -> FastAPI:
             gantry=gantry, vehicle=vehicle, day_type=day_type, bands=[_band_out(b) for b in bands]
         )
 
-    @app.post("/estimate", status_code=501)
-    async def estimate(body: EstimateIn) -> dict[str, Any]:
-        _ = minute_of_day  # keep import used until Phase 2 wires route matching
-        return {
-            "error": "not implemented",
-            "detail": "Route matching (Phase 2) is not built yet; /rates/{gantry} is available.",
-        }
+    @app.post("/estimate", response_model=EstimateOut)
+    async def estimate(request: Request, body: EstimateIn) -> EstimateOut:
+        engine = engine_for(request)
+        try:
+            result = await estimate_trip(
+                engine,
+                repo_for(request),
+                LatLng(lat=body.origin[0], lng=body.origin[1]),
+                LatLng(lat=body.destination[0], lng=body.destination[1]),
+                body.depart_at,
+                body.vehicle,
+            )
+        except RoutingError as exc:
+            raise HTTPException(502, str(exc)) from exc
+        return _estimate_out(result)
 
     return app

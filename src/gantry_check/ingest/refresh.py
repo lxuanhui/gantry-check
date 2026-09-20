@@ -21,6 +21,12 @@ from gantry_check.domain.models import (
     RateSnapshot,
     VehicleType,
 )
+from gantry_check.ingest.gantry_lines import (
+    GANTRY_GEOJSON_DATASET_ID,
+    attach_lines,
+    fetch_gantry_geojson,
+    parse_gantry_lines,
+)
 from gantry_check.ingest.holidays import fetch_holidays
 from gantry_check.ingest.html_rates import parse_html_table
 from gantry_check.ingest.kml_gantries import load_zones, parse_kml
@@ -59,6 +65,7 @@ class RefreshResult:
     mismatches: list[str]
     html_sha256: str
     pdf_sha256: str
+    lines_matched: int = 0  # gantries that got a `line_wkt` from LTA's gantry GeoJSON
     sql_path: Path | None = None
 
 
@@ -114,6 +121,7 @@ async def run_refresh(
     allow_mismatch: bool = False,
     cache_dir: Path | None = None,
     years: list[int] | None = None,
+    include_lines: bool = True,
     client: httpx.Client | None = None,
     async_client: httpx.AsyncClient | None = None,
     now: datetime | None = None,
@@ -137,6 +145,7 @@ async def run_refresh(
             allow_mismatch=allow_mismatch,
             cache_dir=cache_dir,
             years=years,
+            include_lines=include_lines,
             fetched_at=fetched_at,
             zones_csv=zones_csv,
             log=log,
@@ -151,6 +160,7 @@ async def run_refresh(
             allow_mismatch=allow_mismatch,
             cache_dir=cache_dir,
             years=years,
+            include_lines=include_lines,
             fetched_at=fetched_at,
             zones_csv=zones_csv,
             log=log,
@@ -179,6 +189,7 @@ async def _run(
     allow_mismatch: bool,
     cache_dir: Path | None,
     years: list[int] | None,
+    include_lines: bool,
     fetched_at: datetime,
     zones_csv: Path | None,
     log: Callable[[str], None],
@@ -193,6 +204,20 @@ async def _run(
         raise RefreshError("the ERP KML yielded no gantries")
     numbers = [g.number for g in gantries]
     log(f"  {len(gantries)} gantries")
+
+    # 1b. Gantry *lines* across the carriageway, from LTA's gantry GeoJSON on data.gov.sg.
+    #     Route matching needs these to tell one carriageway from the other; a KML point alone
+    #     would charge a route travelling the opposite way.
+    lines_matched = 0
+    without_lines: list[str] = []
+    if include_lines:
+        log(f"fetching gantry lines from data.gov.sg dataset {GANTRY_GEOJSON_DATASET_ID}")
+        lines = parse_gantry_lines(fetch_gantry_geojson(client, cache_dir))
+        gantries, line_stats = attach_lines(gantries, lines)
+        lines_matched = line_stats.gantries_with_lines
+        without_lines = line_stats.gantries_without_lines
+        log(f"  lines: {line_stats.summary(len(gantries))}")
+
     await repo.upsert_gantries(gantries)
 
     # 2. Rate bands, from LTA's per-gantry HTML tables (4 vehicle types x 4 day types each).
@@ -254,6 +279,9 @@ async def _run(
     await repo.set_meta("last_refresh_at", fetched_at.isoformat())
     await repo.set_meta("last_refresh_effective_from", pdf.effective_from.isoformat())
     await repo.set_meta("last_refresh_mismatches", str(len(mismatches)))
+    if include_lines:
+        await repo.set_meta("gantry_lines_dataset", GANTRY_GEOJSON_DATASET_ID)
+        await repo.set_meta("gantries_without_lines", ",".join(without_lines))
 
     # 7. Optionally emit the D1-loadable SQL for `wrangler d1 execute --file`.
     sql_path: Path | None = None
@@ -272,5 +300,6 @@ async def _run(
         mismatches=mismatches,
         html_sha256=html_sha256,
         pdf_sha256=pdf_sha256,
+        lines_matched=lines_matched,
         sql_path=sql_path,
     )

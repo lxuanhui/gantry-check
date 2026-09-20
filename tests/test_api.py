@@ -7,12 +7,15 @@ from gantry_check.api.app import create_app
 from gantry_check.domain.models import (
     DayType,
     Gantry,
+    LatLng,
     PublicHoliday,
     RateBand,
     RateSnapshot,
+    Route,
     VehicleType,
 )
 from gantry_check.repo.sqlite import SqliteRepo
+from gantry_check.routing.base import RoutingError
 
 
 @pytest.fixture
@@ -117,6 +120,114 @@ def test_table(client: TestClient) -> None:
     ]
 
 
-def test_estimate_not_implemented(client: TestClient) -> None:
-    r = client.post("/estimate", json={"origin": [1.37, 103.85], "destination": [1.28, 103.85]})
-    assert r.status_code == 501
+# ------------------------------------------------------------------- POST /estimate
+
+# The `repo` fixture puts gantry 35 at (1.34, 103.86); this route runs straight through it.
+FAKE_ROUTE = Route(
+    points=[
+        LatLng(lat=1.3415, lng=103.86),
+        LatLng(lat=1.3400, lng=103.86),
+        LatLng(lat=1.3385, lng=103.86),
+    ],
+    cumulative_seconds=[0.0, 60.0, 120.0],
+    distance_m=334.0,
+    duration_s=120.0,
+    engine="fake",
+    summary="via CTE",
+)
+
+
+class FakeEngine:
+    name = "fake"
+
+    def __init__(self, result: Route = FAKE_ROUTE) -> None:
+        self._result = result
+
+    async def route(
+        self, origin: LatLng, destination: LatLng, depart_at: datetime | None = None
+    ) -> Route:
+        return self._result
+
+
+@pytest.fixture
+def estimating_client(repo: SqliteRepo) -> TestClient:
+    return TestClient(create_app(lambda _req: repo, lambda _req: FakeEngine()))
+
+
+def _body(**overrides: object) -> dict[str, object]:
+    return {
+        "origin": [1.3415, 103.86],
+        "destination": [1.3385, 103.86],
+        "depart_at": "2026-09-21T08:10:00",  # Monday
+        **overrides,
+    }
+
+
+def test_estimate_returns_the_charged_gantries(estimating_client: TestClient) -> None:
+    r = estimating_client.post("/estimate", json=_body())
+    assert r.status_code == 200
+    body = r.json()
+    assert body["engine"] == "fake"
+    assert body["summary"] == "via CTE"
+    assert body["vehicle"] == "car"
+    assert body["depart_at"].startswith("2026-09-21T08:10:00+08:00")
+    assert body["total_cents"] == 300
+    assert body["total"] == "$3.00"
+    assert len(body["charges"]) == 1
+    charge = body["charges"][0]
+    assert charge["gantry"] == "35"
+    assert charge["name"] == "CTE before Braddell Road"
+    assert charge["zone_id"] == "CT4"
+    assert charge["method"] == "point"
+    assert charge["amount"] == "$3.00"
+    assert charge["day_type"] == "weekday"
+    assert charge["band"] == {
+        "start": "08:05",
+        "end": "09:25",
+        "amount_cents": 300,
+        "amount": "$3.00",
+    }
+    assert charge["crossed_at"].startswith("2026-09-21T08:11:00+08:00")
+    assert any("proximity only" in w for w in body["warnings"])
+
+
+def test_estimate_sunday_is_free(estimating_client: TestClient) -> None:
+    body = estimating_client.post("/estimate", json=_body(depart_at="2026-09-20T08:10:00")).json()
+    assert body["charges"][0]["day_type"] == "sunday_ph"
+    assert body["total_cents"] == 0 and body["total"] == "$0.00"
+
+
+def test_estimate_without_an_engine_is_503(client: TestClient) -> None:
+    r = client.post("/estimate", json=_body())
+    assert r.status_code == 503
+    assert r.json() == {"detail": "no routing engine configured"}
+
+
+def test_estimate_unconfigured_engine_factory_is_503(repo: SqliteRepo) -> None:
+    def boom(_req: object) -> FakeEngine:
+        raise RoutingError("no routing engine configured: set GOOGLE_MAPS_API_KEY")
+
+    unconfigured = TestClient(create_app(lambda _req: repo, boom))
+    r = unconfigured.post("/estimate", json=_body())
+    assert r.status_code == 503
+    assert r.json() == {"detail": "no routing engine configured"}
+
+
+def test_estimate_routing_failure_is_502(repo: SqliteRepo) -> None:
+    class FailingEngine:
+        name = "failing"
+
+        async def route(
+            self, origin: LatLng, destination: LatLng, depart_at: datetime | None = None
+        ) -> Route:
+            raise RoutingError("upstream said no")
+
+    failing = TestClient(create_app(lambda _req: repo, lambda _req: FailingEngine()))
+    r = failing.post("/estimate", json=_body())
+    assert r.status_code == 502
+    assert r.json() == {"detail": "upstream said no"}
+
+
+def test_estimate_validates_its_body(estimating_client: TestClient) -> None:
+    assert estimating_client.post("/estimate", json={"origin": [1.34, 103.86]}).status_code == 422
+    assert estimating_client.post("/estimate", json=_body(vehicle="hovercraft")).status_code == 422
