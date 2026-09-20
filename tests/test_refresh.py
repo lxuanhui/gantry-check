@@ -50,16 +50,25 @@ GANTRY_GEOJSON_URL = "https://example.test/gantry.geojson"
 
 #: Gantries left without a line once the curated overrides have been applied: the automatic
 #: join misses 13 (see `tests/test_gantry_lines.py`), then `data/static/gantry_overrides.csv`
-#: gives 31 and 68 a line each and takes 67's away. See `tests/test_overrides.py`.
-GANTRIES_WITHOUT_LINES = "28,36,38,39,46,54,59,65,67,71,91,93"
+#: gives 31, 35 (trimmed), 46, 67 and 68 a line each. See `tests/test_overrides.py`.
+GANTRIES_WITHOUT_LINES = "28,36,38,39,54,59,65,71,91,93"
 
 #: The line the automatic join wrongly hands to gantry 67 (a northbound slip-road gantry, given
 #: a southbound line). With `overrides_csv=None` it is left as-is on 67; the overrides file
-#: instead clears it from 67 and splits it between 31 and 68.
+#: instead replaces it on 67 with 67's own slip-road line and splits this one between 31 and 68.
 BRADDELL_SOUTHBOUND = "LINESTRING(103.862260 1.333367, 103.862578 1.333378)"
 
 #: What the overrides file hands to gantry 31: the western (mainline) part of that line.
 BRADDELL_MAINLINE_31 = "LINESTRING(103.862260 1.333367, 103.862398 1.333372)"
+
+#: What the overrides file hands to gantry 35: its auto-joined line with the western 7 m removed.
+BRADDELL_35 = "LINESTRING(103.859314 1.346565, 103.859519 1.346641)"
+
+#: What the overrides file hands to gantry 46: the unnumbered line under the PIE loop.
+BRADDELL_46 = "LINESTRING(103.862080 1.332735, 103.862281 1.332751)"
+
+#: What the overrides file hands to gantry 67: the unnumbered slip-road line.
+BRADDELL_67 = "LINESTRING(103.861925 1.333120, 103.861782 1.333189)"
 
 #: What the overrides file hands to gantry 68: the eastern (slip-road) part of that line.
 BRADDELL_SLIP_68 = "LINESTRING(103.862461 1.333374, 103.862578 1.333378)"
@@ -164,7 +173,7 @@ async def test_refresh_end_to_end(upstream: respx.MockRouter, tmp_path: Path) ->
 
         assert result.gantry_count == 78
         assert result.lines_matched == 65  # the automatic join, before any override
-        assert result.overrides_applied == ["31", "67", "68"]
+        assert result.overrides_applied == ["31", "35", "46", "67", "68"]
         assert result.band_count > 0
         assert result.holiday_count == len(HOLIDAYS)
         assert result.effective_from == date(2026, 9, 7)
@@ -196,22 +205,23 @@ async def test_refresh_end_to_end(upstream: respx.MockRouter, tmp_path: Path) ->
         assert await repo.get_meta("last_refresh_mismatches") == str(len(result.mismatches))
         assert await repo.get_meta("gantry_lines_dataset") == GANTRY_GEOJSON_DATASET_ID
         assert await repo.get_meta("gantries_without_lines") == GANTRIES_WITHOUT_LINES
-        assert await repo.get_meta("gantry_overrides") == "31,67,68"
+        assert await repo.get_meta("gantry_overrides") == "31,35,46,67,68"
 
         # The gantry line is what lets Phase 2 tell one carriageway from the other.
         stored = {g.number: g for g in await repo.gantries()}
-        # One carriageway, and the file's two identical copies of it are de-duplicated, so
-        # gantry 35 gets a plain LINESTRING rather than a MULTILINESTRING.
-        assert stored["35"].line_wkt == "LINESTRING(103.859255 1.346543, 103.859519 1.346641)"
         assert stored["35"].heading_deg is None  # a line across a carriageway is 180-ambiguous
-        assert sum(1 for g in stored.values() if g.line_wkt) == 66
+        assert sum(1 for g in stored.values() if g.line_wkt) == 68
 
         # The curated overrides: the auto-join gave the southbound CTE line to the northbound
-        # slip-road gantry 67, so the file clears 67 and splits that line between 31 (the
-        # mainline, western part) and 68 (the slip road, eastern part).
+        # slip-road gantry 67, so the file replaces 67's line with its own slip-road line and
+        # splits the southbound line between 31 (the mainline, western part) and 68 (the slip
+        # road, eastern part). 35 keeps its auto-joined line, trimmed; 46 gets a line the
+        # auto-join never gave it at all.
         assert stored["31"].line_wkt == BRADDELL_MAINLINE_31
         assert stored["31"].heading_deg is None
-        assert stored["67"].line_wkt is None
+        assert stored["35"].line_wkt == BRADDELL_35
+        assert stored["46"].line_wkt == BRADDELL_46
+        assert stored["67"].line_wkt == BRADDELL_67
         assert stored["68"].line_wkt == BRADDELL_SLIP_68
 
         total_bands = len(await repo.all_bands())

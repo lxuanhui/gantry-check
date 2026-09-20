@@ -15,11 +15,20 @@ from gantry_check.ingest.overrides import (
 from gantry_check.ingest.refresh import DEFAULT_OVERRIDES_CSV
 
 #: An arbitrary southbound-CTE-shaped line, used where the tests below need *some* valid WKT.
-#: Also what the auto-join wrongly gave 67 before the seeded file cleared it.
 BRADDELL_SOUTHBOUND = "LINESTRING(103.862260 1.333367, 103.862578 1.333378)"
 
 #: The line the seeded file hands to gantry 31: the western part of the unnumbered 35 m line.
 BRADDELL_MAINLINE_31 = "LINESTRING(103.862260 1.333367, 103.862398 1.333372)"
+
+#: The line the seeded file hands to gantry 35: its auto-joined line with the western 7 m removed.
+BRADDELL_35 = "LINESTRING(103.859314 1.346565, 103.859519 1.346641)"
+
+#: The line the seeded file hands to gantry 46: the unnumbered line under the PIE loop.
+BRADDELL_46 = "LINESTRING(103.862080 1.332735, 103.862281 1.332751)"
+
+#: The line the seeded file hands to gantry 67: the unnumbered slip-road line, replacing the
+#: southbound mainline line the auto-join had wrongly given it.
+BRADDELL_67 = "LINESTRING(103.861925 1.333120, 103.861782 1.333189)"
 
 #: The line the seeded file hands to gantry 68: the eastern part of that same 35 m line.
 BRADDELL_SLIP_68 = "LINESTRING(103.862461 1.333374, 103.862578 1.333378)"
@@ -44,15 +53,11 @@ def _write(tmp_path: Path, body: str) -> Path:
 # ----------------------------------------------------------------------------- loading
 
 
-def test_the_seeded_file_loads_with_its_three_curated_rows() -> None:
+def test_the_seeded_file_loads_with_its_five_curated_rows() -> None:
     """The file shipped in `data/static` is what the scheduled refresh applies."""
     overrides = {o.number: o for o in load_overrides(DEFAULT_OVERRIDES_CSV)}
 
-    assert set(overrides) == {"31", "67", "68"}
-    # Gantry 67 is a *northbound* slip-road gantry; the auto-join gave it a southbound line.
-    assert overrides["67"].line_wkt is None
-    assert overrides["67"].heading_deg is None
-    assert "northbound" in overrides["67"].note
+    assert set(overrides) == {"31", "35", "46", "67", "68"}
     # Gantries 31 and 68 split the unnumbered 35 m line between them: 31 gets the western part
     # (the southbound CTE mainline), 68 the eastern part (the exit slip road). The WKT contains
     # a comma, so this also proves the CSV quotes it properly -- an unquoted cell would truncate
@@ -60,6 +65,17 @@ def test_the_seeded_file_loads_with_its_three_curated_rows() -> None:
     assert overrides["31"].line_wkt == BRADDELL_MAINLINE_31
     assert overrides["31"].heading_deg is None
     assert overrides["31"].note
+    assert overrides["35"].line_wkt == BRADDELL_35
+    assert overrides["35"].heading_deg is None
+    assert overrides["35"].note
+    assert overrides["46"].line_wkt == BRADDELL_46
+    assert overrides["46"].heading_deg is None
+    assert overrides["46"].note
+    # Gantry 67 is a northbound slip-road gantry; the auto-join had wrongly given it the
+    # southbound mainline line, and the override replaces it with the slip road's own line.
+    assert overrides["67"].line_wkt == BRADDELL_67
+    assert overrides["67"].heading_deg is None
+    assert overrides["67"].note
     assert overrides["68"].line_wkt == BRADDELL_SLIP_68
     assert overrides["68"].heading_deg is None
     assert overrides["68"].note
