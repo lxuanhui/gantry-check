@@ -51,6 +51,13 @@ def client(repo: SqliteRepo) -> TestClient:
     return TestClient(create_app(lambda _req: repo))
 
 
+def test_index_links_to_docs(client: TestClient) -> None:
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "text/html" in response.headers["content-type"]
+    assert 'href="/docs"' in response.text
+
+
 def test_health(client: TestClient) -> None:
     body = client.get("/health").json()
     assert body["ok"] is True

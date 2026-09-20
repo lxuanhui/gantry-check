@@ -9,6 +9,7 @@ from datetime import datetime
 from typing import Annotated, Any
 
 from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
 from gantry_check import __version__
@@ -75,6 +76,32 @@ def _band_out(b: RateBand) -> BandOut:
     )
 
 
+_INDEX_HTML = """<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>gantry-check</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{font:16px/1.5 system-ui,sans-serif;max-width:40rem;margin:3rem auto;
+padding:0 1rem;color:#222}
+code{background:#f3f3f3;padding:.1em .3em;border-radius:3px}li{margin:.4em 0}</style></head>
+<body><h1>gantry-check</h1>
+<p>Singapore ERP gantry rates and route cost estimates. Times are Singapore time unless an
+offset is given.</p>
+<ul>
+<li><a href="/docs">Interactive API docs</a></li>
+<li><a href="/health">/health</a> — active rate snapshot</li>
+<li><a href="/gantries">/gantries</a> — all gantries with coordinates and zones</li>
+<li><a href="/rates/35?at=2026-09-21T08:10:00&amp;vehicle=car">
+/rates/35?at=2026-09-21T08:10:00&amp;vehicle=car</a>
+ — charge at gantry 35 (CTE before Braddell Road) on a weekday morning</li>
+<li><a href="/rates/35/table?vehicle=car&amp;day_type=weekday">
+/rates/35/table?vehicle=car&amp;day_type=weekday</a>
+ — the whole weekday table</li>
+<li><code>POST /estimate</code> — route cost estimate (phase 2)</li>
+</ul>
+<p><a href="https://github.com/lxuanhui/gantry-check">Source on GitHub</a></p>
+</body></html>
+"""
+
+
 def create_app(repo_factory: RepoFactory) -> FastAPI:
     app = FastAPI(
         title="gantry-check",
@@ -84,6 +111,10 @@ def create_app(repo_factory: RepoFactory) -> FastAPI:
 
     def repo_for(request: Request) -> Repo:
         return repo_factory(request)
+
+    @app.get("/", response_class=HTMLResponse, include_in_schema=False)
+    async def index() -> str:
+        return _INDEX_HTML
 
     @app.get("/health")
     async def health(request: Request) -> dict[str, Any]:
