@@ -50,11 +50,19 @@ GANTRY_GEOJSON_URL = "https://example.test/gantry.geojson"
 
 #: Gantries left without a line once the curated overrides have been applied: the automatic
 #: join misses 13 (see `tests/test_gantry_lines.py`), then `data/static/gantry_overrides.csv`
-#: gives 31 a line and takes 67's away. See `tests/test_overrides.py`.
-GANTRIES_WITHOUT_LINES = "28,36,38,39,46,54,59,65,67,68,71,91,93"
+#: gives 31 and 68 a line each and takes 67's away. See `tests/test_overrides.py`.
+GANTRIES_WITHOUT_LINES = "28,36,38,39,46,54,59,65,67,71,91,93"
 
-#: The line the overrides file moves from gantry 67 (northbound slip road) to 31 (southbound).
+#: The line the automatic join wrongly hands to gantry 67 (a northbound slip-road gantry, given
+#: a southbound line). With `overrides_csv=None` it is left as-is on 67; the overrides file
+#: instead clears it from 67 and splits it between 31 and 68.
 BRADDELL_SOUTHBOUND = "LINESTRING(103.862260 1.333367, 103.862578 1.333378)"
+
+#: What the overrides file hands to gantry 31: the western (mainline) part of that line.
+BRADDELL_MAINLINE_31 = "LINESTRING(103.862260 1.333367, 103.862398 1.333372)"
+
+#: What the overrides file hands to gantry 68: the eastern (slip-road) part of that line.
+BRADDELL_SLIP_68 = "LINESTRING(103.862461 1.333374, 103.862578 1.333378)"
 
 HOLIDAYS = [
     PublicHoliday(date=date(2026, 1, 1), name="New Year's Day", is_major=False),
@@ -156,7 +164,7 @@ async def test_refresh_end_to_end(upstream: respx.MockRouter, tmp_path: Path) ->
 
         assert result.gantry_count == 78
         assert result.lines_matched == 65  # the automatic join, before any override
-        assert result.overrides_applied == ["31", "67"]
+        assert result.overrides_applied == ["31", "67", "68"]
         assert result.band_count > 0
         assert result.holiday_count == len(HOLIDAYS)
         assert result.effective_from == date(2026, 9, 7)
@@ -188,7 +196,7 @@ async def test_refresh_end_to_end(upstream: respx.MockRouter, tmp_path: Path) ->
         assert await repo.get_meta("last_refresh_mismatches") == str(len(result.mismatches))
         assert await repo.get_meta("gantry_lines_dataset") == GANTRY_GEOJSON_DATASET_ID
         assert await repo.get_meta("gantries_without_lines") == GANTRIES_WITHOUT_LINES
-        assert await repo.get_meta("gantry_overrides") == "31,67"
+        assert await repo.get_meta("gantry_overrides") == "31,67,68"
 
         # The gantry line is what lets Phase 2 tell one carriageway from the other.
         stored = {g.number: g for g in await repo.gantries()}
@@ -196,13 +204,15 @@ async def test_refresh_end_to_end(upstream: respx.MockRouter, tmp_path: Path) ->
         # gantry 35 gets a plain LINESTRING rather than a MULTILINESTRING.
         assert stored["35"].line_wkt == "LINESTRING(103.859255 1.346543, 103.859519 1.346641)"
         assert stored["35"].heading_deg is None  # a line across a carriageway is 180-ambiguous
-        assert sum(1 for g in stored.values() if g.line_wkt) == 65
+        assert sum(1 for g in stored.values() if g.line_wkt) == 66
 
         # The curated overrides: the auto-join gave the southbound CTE line to the northbound
-        # slip-road gantry 67, so the file clears 67 and hands the line to 31 instead.
-        assert stored["31"].line_wkt == BRADDELL_SOUTHBOUND
+        # slip-road gantry 67, so the file clears 67 and splits that line between 31 (the
+        # mainline, western part) and 68 (the slip road, eastern part).
+        assert stored["31"].line_wkt == BRADDELL_MAINLINE_31
         assert stored["31"].heading_deg is None
         assert stored["67"].line_wkt is None
+        assert stored["68"].line_wkt == BRADDELL_SLIP_68
 
         total_bands = len(await repo.all_bands())
 

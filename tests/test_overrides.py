@@ -14,8 +14,15 @@ from gantry_check.ingest.overrides import (
 )
 from gantry_check.ingest.refresh import DEFAULT_OVERRIDES_CSV
 
-#: The line the seeded file hands to gantry 31; also what the auto-join wrongly gave 67.
+#: An arbitrary southbound-CTE-shaped line, used where the tests below need *some* valid WKT.
+#: Also what the auto-join wrongly gave 67 before the seeded file cleared it.
 BRADDELL_SOUTHBOUND = "LINESTRING(103.862260 1.333367, 103.862578 1.333378)"
+
+#: The line the seeded file hands to gantry 31: the western part of the unnumbered 35 m line.
+BRADDELL_MAINLINE_31 = "LINESTRING(103.862260 1.333367, 103.862398 1.333372)"
+
+#: The line the seeded file hands to gantry 68: the eastern part of that same 35 m line.
+BRADDELL_SLIP_68 = "LINESTRING(103.862461 1.333374, 103.862578 1.333378)"
 
 
 def _gantry(number: str, **kwargs: object) -> Gantry:
@@ -37,20 +44,25 @@ def _write(tmp_path: Path, body: str) -> Path:
 # ----------------------------------------------------------------------------- loading
 
 
-def test_the_seeded_file_loads_with_its_two_curated_rows() -> None:
+def test_the_seeded_file_loads_with_its_three_curated_rows() -> None:
     """The file shipped in `data/static` is what the scheduled refresh applies."""
     overrides = {o.number: o for o in load_overrides(DEFAULT_OVERRIDES_CSV)}
 
-    assert set(overrides) == {"31", "67"}
+    assert set(overrides) == {"31", "67", "68"}
     # Gantry 67 is a *northbound* slip-road gantry; the auto-join gave it a southbound line.
     assert overrides["67"].line_wkt is None
     assert overrides["67"].heading_deg is None
     assert "northbound" in overrides["67"].note
-    # Gantry 31 takes over that line. The WKT contains a comma, so this also proves the CSV
-    # quotes it properly -- an unquoted cell would truncate the line at the first coordinate.
-    assert overrides["31"].line_wkt == BRADDELL_SOUTHBOUND
+    # Gantries 31 and 68 split the unnumbered 35 m line between them: 31 gets the western part
+    # (the southbound CTE mainline), 68 the eastern part (the exit slip road). The WKT contains
+    # a comma, so this also proves the CSV quotes it properly -- an unquoted cell would truncate
+    # the line at the first coordinate.
+    assert overrides["31"].line_wkt == BRADDELL_MAINLINE_31
     assert overrides["31"].heading_deg is None
     assert overrides["31"].note
+    assert overrides["68"].line_wkt == BRADDELL_SLIP_68
+    assert overrides["68"].heading_deg is None
+    assert overrides["68"].note
 
 
 def test_load_reads_a_heading_and_ignores_blank_rows(tmp_path: Path) -> None:

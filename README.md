@@ -364,22 +364,23 @@ and turns it into a list of crossed gantries and charges (`matching/crossings.py
   [Data sources and licences](#data-sources-and-licences)). It has no usable `type` field and
   unreliable gantry numbers, so lines are joined to the OneMotoring KML points purely by geometry
   — the nearest line within 60 m — with the file's own gantry number used only to break ties
-  between two nearby carriageways. As of the refresh on 21 September 2026, 65 of the 78 gantries
+  between two nearby carriageways. As of the refresh on 21 September 2026, 66 of the 78 gantries
   have a line; the rest fall back to point matching.
 - Point-matched today (direction unverified): **28, 59** (just past the 60 m join radius); **36,
-  38, 39, 65, 91, 93** (the OneMotoring point sits 100–145 m from the nearest line); **46, 54,
-  68** (no line in the dataset carries their number at all); **67** (its auto-joined line was
-  cleared by an override, below); **71** (Woodsville Tunnel — no surface structure exists in the
-  dataset to give it a line).
-- Line inferred from route evidence, unverified on imagery: gantry **31** (CTE after Braddell
-  Road). Its line was assigned by an override rather than by the join; see below.
+  38, 39, 65, 91, 93** (the OneMotoring point sits 100–145 m from the nearest line); **46, 54**
+  (no line in the dataset carries their number at all); **67** (its auto-joined line was cleared
+  by an override, below); **71** (Woodsville Tunnel — no surface structure exists in the dataset
+  to give it a line).
+- Gantries **31** and **68** (CTE after Braddell Road, and its exit slip road to PIE (Changi) /
+  Serangoon Road) share one physical gantry structure. Both lines are set by an override rather
+  than by the join, and both are checked against satellite imagery; see below for how the
+  structure was split between them.
 - Joined at the edge of the radius, unverified: gantries **20** (Havelock Road/CTE Exit, 57 m) and
   **34** (CTE from Balestier Road, 53 m). Both are inside the 60 m radius only just, so the line
   each one picked up may belong to a neighbouring structure.
-- Known false-positive risk: gantry **68** (a CTE slip road to the PIE) is point-matched, and its
-  point lies within the 15 m point-matching radius of the CTE mainline, so a mainline route can be
-  wrongly charged for it. Gantries **50** and **55** each joined two parallel lines, which may
-  include the line for the opposite carriageway rather than just their own.
+- May have joined both carriageways, unverified: gantries **50** and **55** each joined two
+  parallel lines, which may include the line for the opposite carriageway rather than just
+  their own.
 - Crossing times are estimates — `depart_at` plus the route's cumulative duration to that point,
   not a live read of conditions at the moment of crossing. A crossing estimated within a minute or
   two of a rate band boundary can land on either side of it.
@@ -392,18 +393,28 @@ point matching. An override naming a gantry that is no longer in the KML logs a 
 skipped, so a stale row cannot fail a scheduled refresh. The numbers applied are recorded in the
 `gantry_overrides` meta key.
 
-Two rows are seeded, both at the CTE/PIE/Braddell interchange, where four OneMotoring points (31,
+Three rows are seeded, all at the CTE/PIE/Braddell interchange, where four OneMotoring points (31,
 46, 67, 68) sit within 40 m of each other while the real gantries are spread over 200 m, and all
 three lines there are unnumbered:
 
 - **67** (PIE to CTE Northbound before Braddell Road) — line cleared. The join gave it
   `LINESTRING(103.862260 1.333367, 103.862578 1.333378)`, which only *southbound* routes cross on
   both routing engines; a northbound slip-road gantry cannot sit on it.
-- **31** (CTE after Braddell Road) — given that line instead. It is the only 35 m
-  (mainline-width) unnumbered line in the cluster and is crossed only by southbound routes. This is
-  inferred from route evidence, not checked against imagery; replace it if imagery disagrees.
+- **31** (CTE after Braddell Road) — given the western part of that line instead,
+  `LINESTRING(103.862260 1.333367, 103.862398 1.333372)`, the southbound CTE mainline.
+- **68** (CTE exit slip road to PIE (Changi) / Serangoon Road) — given the eastern part of that
+  line, `LINESTRING(103.862461 1.333374, 103.862578 1.333378)`, the slip road past the gore.
 
-To add an override for gantry **68** (or any other point-matched gantry), draw the gantry's span
+Satellite imagery shows one physical gantry structure spanning both the southbound CTE mainline
+and the exit slip road beside it, at the latitude of this unnumbered 35 m line: the mainline is
+the western ~15 m of the structure, the slip road the eastern ~13 m past the gore. Splitting the
+line there, with a ~7 m gap at the gore between the two halves, lets each carriageway match only
+its own gantry: on both routing engines, southbound mainline routes cross the 31 line 10-11 m from
+its west end (12+ m from 68's line) and exit routes cross the 68 line 4-8 m from its west end
+(11+ m from 31's line) — each route's crossing point sits well outside the 8 m line-matching
+buffer of the other carriageway's line, so neither can be caught by the wrong one.
+
+To add an override for another point-matched gantry (**46**, for example), draw the gantry's span
 across the carriageway on imagery, read off the two end points, and add a row with
 `LINESTRING(lng lat, lng lat)` — longitude first, latitude second, both in WGS84 decimal degrees.
 Leave `heading_deg` empty unless you know the traffic direction: a line across a carriageway is
