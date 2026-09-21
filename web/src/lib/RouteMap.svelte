@@ -22,7 +22,13 @@
 
 	const SINGAPORE = { lat: 1.3521, lng: 103.8198 };
 	const NO_KEY = 'Map unavailable: no Google Maps browser key configured.';
-	const LOAD_FAILED = 'Map unavailable: the Google Maps API could not be loaded.';
+	// Two distinct failures, told apart so a phone user (no console) can still report which:
+	// the script never arrived (content blocker, DNS/VPN filter, offline) versus Google
+	// answering but refusing the key for this page's address.
+	const BLOCKED =
+		'Map unavailable: the Google Maps script could not be fetched. A content blocker, private DNS or VPN filter may be blocking maps.googleapis.com.';
+	const REJECTED =
+		'Map unavailable: Google rejected the map key for this page\u2019s address. Check the key\u2019s HTTP referrer restrictions.';
 
 	interface Libraries {
 		core: google.maps.CoreLibrary;
@@ -43,9 +49,10 @@
 	let map: google.maps.Map | null = null;
 	let info: google.maps.InfoWindow | null = null;
 	let overlays: Overlay[] = [];
-	let status = $state<'loading' | 'ready' | 'nokey' | 'error'>(
+	let status = $state<'loading' | 'ready' | 'nokey' | 'blocked' | 'rejected'>(
 		MAPS_KEY ? 'loading' : 'nokey'
 	);
+	const MESSAGES = { nokey: NO_KEY, blocked: BLOCKED, rejected: REJECTED } as const;
 
 	function clearOverlays() {
 		for (const overlay of overlays) overlay.setMap(null);
@@ -66,7 +73,7 @@
 			google?: { maps?: { importLibrary?: unknown } };
 		};
 		global.gm_authFailure = () => {
-			if (!disposed) status = 'error';
+			if (!disposed) status = 'rejected';
 		};
 
 		void (async () => {
@@ -101,7 +108,7 @@
 				libs = { core, maps, marker };
 				status = 'ready';
 			} catch {
-				if (!disposed) status = 'error';
+				if (!disposed) status = 'blocked';
 			}
 		})();
 
@@ -238,8 +245,8 @@
 	<!-- The API owns this element, so the fallback message is a sibling laid over it rather
 	     than a child Svelte would have to insert into Google's own markup. -->
 	<div class="canvas" bind:this={container} role="application" aria-label="Route and gantry map"></div>
-	{#if status === 'nokey' || status === 'error'}
-		<p class="unavailable">{status === 'nokey' ? NO_KEY : LOAD_FAILED}</p>
+	{#if status === 'nokey' || status === 'blocked' || status === 'rejected'}
+		<p class="unavailable">{MESSAGES[status]}</p>
 	{/if}
 </div>
 {#if estimate && !estimate.polyline}
