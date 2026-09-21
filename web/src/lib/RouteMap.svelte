@@ -53,6 +53,13 @@
 		MAPS_KEY ? 'loading' : 'nokey'
 	);
 	const MESSAGES = { nokey: NO_KEY, blocked: BLOCKED, rejected: REJECTED } as const;
+	// Google names the real cause (RefererNotAllowedMapError, ApiNotActivatedMapError, a
+	// billing problem, ...) and the exact URL it wants authorised, but only through
+	// console.error. A phone has no console, so we tap it and show the text on the page.
+	let detail = $state('');
+	// The address Google actually saw. If the phone is on a proxy or a preview host, this
+	// is where it shows up.
+	const pageUrl = browser ? window.location.href : '';
 
 	function clearOverlays() {
 		for (const overlay of overlays) overlay.setMap(null);
@@ -75,6 +82,28 @@
 		global.gm_authFailure = () => {
 			if (!disposed) status = 'rejected';
 		};
+
+		// Tap console.error only while the API boots, then hand it back untouched.
+		const realError = console.error;
+		let tapped = true;
+		const untap = () => {
+			if (tapped) {
+				console.error = realError;
+				tapped = false;
+			}
+		};
+		console.error = (...args: unknown[]) => {
+			const text = args.filter((a): a is string => typeof a === 'string').join(' ');
+			if (!disposed && /Google Maps/i.test(text)) {
+				detail = text
+					.replace(/https:\/\/developers\.google\.com\S*/g, '')
+					.replace(/\s+/g, ' ')
+					.trim();
+			}
+			realError(...args);
+		};
+		// The auth failure lands a beat after the script does; 20 s covers a slow phone.
+		const untapTimer = setTimeout(untap, 20000);
 
 		void (async () => {
 			try {
@@ -114,6 +143,8 @@
 
 		return () => {
 			disposed = true;
+			clearTimeout(untapTimer);
+			untap();
 			clearOverlays();
 			info = null;
 			map = null;
@@ -246,7 +277,13 @@
 	     than a child Svelte would have to insert into Google's own markup. -->
 	<div class="canvas" bind:this={container} role="application" aria-label="Route and gantry map"></div>
 	{#if status === 'nokey' || status === 'blocked' || status === 'rejected'}
-		<p class="unavailable">{MESSAGES[status]}</p>
+		<p class="unavailable">
+			{MESSAGES[status]}
+			{#if status !== 'nokey'}
+				<span class="detail">{detail || 'No detail reported.'}</span>
+				<span class="detail">This page: {pageUrl}</span>
+			{/if}
+		</p>
 	{/if}
 </div>
 {#if estimate && !estimate.polyline}
@@ -279,6 +316,7 @@
 		position: absolute;
 		inset: 0;
 		display: flex;
+		flex-direction: column;
 		align-items: center;
 		justify-content: center;
 		margin: 0;
@@ -287,6 +325,15 @@
 		font-size: 0.85rem;
 		color: var(--muted);
 		background: var(--hover);
+	}
+
+	.detail {
+		display: block;
+		margin-top: 0.4rem;
+		font-size: 0.72rem;
+		line-height: 1.4;
+		word-break: break-word;
+		opacity: 0.85;
 	}
 
 	.note {
