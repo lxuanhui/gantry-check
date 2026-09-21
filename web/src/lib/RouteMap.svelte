@@ -127,6 +127,9 @@
 					zoom: 11,
 					// Matches the old map: the page scrolls over it rather than zooming.
 					scrollwheel: false,
+					// Explicit rather than left to 'auto': one finger always scrolls the page
+					// past the map, two fingers pan it, so the map cannot trap a phone scroll.
+					gestureHandling: 'cooperative',
 					clickableIcons: false,
 					mapTypeControl: false,
 					streetViewControl: false,
@@ -293,7 +296,10 @@
 <style>
 	.map {
 		position: relative;
-		height: 260px;
+		/* The map is the payoff, so on a phone it takes a real share of the screen rather
+		   than a fixed 260px band. The plain height is the fallback for engines without svh. */
+		height: 300px;
+		height: clamp(300px, 50svh, 420px);
 		border-radius: 12px;
 		border: 1px solid var(--border);
 		background: var(--hover);

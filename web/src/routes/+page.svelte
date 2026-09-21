@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import PlaceInput from '$lib/PlaceInput.svelte';
 	import RouteMap from '$lib/RouteMap.svelte';
 	import {
@@ -31,6 +31,15 @@
 	let gantries = $state<Gantry[]>([]);
 
 	let inflight: AbortController | undefined;
+	// The result lands below the fold on a phone, so it is scrolled to once it exists.
+	let resultCard = $state<HTMLElement | null>(null);
+
+	async function revealResult() {
+		await tick();
+		if (!resultCard) return;
+		const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+		resultCard.scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'start' });
+	}
 
 	onMount(() => {
 		// Only used to place gantry markers on the map; a failure here is not worth surfacing.
@@ -69,6 +78,7 @@
 			);
 			if (controller !== inflight) return;
 			estimate = result;
+			void revealResult();
 		} catch (thrown) {
 			if (thrown instanceof DOMException && thrown.name === 'AbortError') return;
 			if (controller !== inflight) return;
@@ -124,7 +134,7 @@
 
 {#if estimate}
 	{@const result = estimate}
-	<section class="card result" aria-live="polite">
+	<section class="card result" aria-live="polite" bind:this={resultCard}>
 		<p class="totallabel">Estimated ERP</p>
 		<p class="total" class:free={result.total_cents === 0}>{result.total}</p>
 		<p class="trip">
@@ -185,13 +195,19 @@
 	.swaprow {
 		display: flex;
 		justify-content: flex-end;
-		margin: -0.55rem 0;
+		/* Pulled into the form's gap, but only by what is left once the button is a full
+		   44px touch target, so the two address fields stay visually paired. */
+		margin: -0.35rem 0;
 	}
 
 	.swap {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3rem;
+		min-height: 44px;
+		padding: 0 0.9rem;
 		font: inherit;
-		font-size: 0.8rem;
-		padding: 0.25rem 0.6rem;
+		font-size: 0.85rem;
 		color: var(--muted);
 		background: var(--card);
 		border: 1px solid var(--border);
@@ -237,12 +253,19 @@
 		color: var(--muted);
 	}
 
+	/* The label row reads as text, so the button keeps its baseline while the touch target
+	   grows around it: padding makes it 44px tall and the matching negative margin stops
+	   that from pushing the input down. */
 	.ghost {
+		display: inline-flex;
+		align-items: center;
+		min-height: 44px;
+		margin: -0.75rem -0.4rem;
+		padding: 0 0.4rem;
 		background: none;
 		border: 0;
-		padding: 0;
 		font: inherit;
-		font-size: 0.8rem;
+		font-size: 0.85rem;
 		color: var(--accent);
 		cursor: pointer;
 	}
@@ -251,7 +274,9 @@
 	select {
 		width: 100%;
 		max-width: 100%;
-		padding: 0.7rem 0.75rem;
+		/* 16px keeps iOS Safari from zooming the page when the field takes focus. */
+		min-height: 44px;
+		padding: 0.6rem 0.75rem;
 		font: inherit;
 		font-size: 1rem;
 		color: var(--fg);
@@ -260,8 +285,23 @@
 		border-radius: 10px;
 	}
 
+	/* Left iOS to itself, a datetime-local input centres its value and sizes to its own
+	   content rather than filling the field. */
+	input[type='datetime-local'] {
+		-webkit-appearance: none;
+		appearance: none;
+		display: block;
+		/* Pinned so it matches the neighbouring select exactly when the two sit side by side. */
+		height: 44px;
+	}
+
+	input[type='datetime-local']::-webkit-date-and-time-value {
+		text-align: left;
+	}
+
 	.primary {
 		margin-top: 0.25rem;
+		min-height: 48px;
 		padding: 0.85rem;
 		font: inherit;
 		font-size: 1rem;
@@ -280,6 +320,9 @@
 
 	.card {
 		margin-top: 1.25rem;
+		/* revealResult() scrolls this card to the top of the viewport; the margin keeps it
+		   off the very edge. */
+		scroll-margin-top: 0.75rem;
 		padding: 1rem;
 		background: var(--card);
 		border: 1px solid var(--border);
@@ -313,7 +356,7 @@
 
 	.total {
 		margin: 0.1rem 0 0.3rem;
-		font-size: 2.6rem;
+		font-size: clamp(2.3rem, 11vw, 2.6rem);
 		font-weight: 700;
 		letter-spacing: -0.02em;
 		line-height: 1.05;
@@ -343,11 +386,17 @@
 
 	.charges li {
 		display: grid;
-		grid-template-columns: auto 1fr auto;
-		gap: 0.6rem;
+		grid-template-columns: auto minmax(0, 1fr) auto;
+		gap: 0.5rem;
 		align-items: baseline;
-		padding: 0.6rem 0;
+		padding: 0.65rem 0;
 		border-bottom: 1px solid var(--border);
+	}
+
+	@media (min-width: 560px) {
+		.charges li {
+			gap: 0.6rem;
+		}
 	}
 
 	.charges li.muted {
@@ -375,6 +424,7 @@
 	.detail {
 		font-size: 0.75rem;
 		color: var(--muted);
+		overflow-wrap: anywhere;
 	}
 
 	.flag {

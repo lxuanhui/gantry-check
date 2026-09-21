@@ -21,6 +21,10 @@
 		content="Estimate the ERP charge on a Singapore drive: which gantries a route crosses, when, and what each one costs."
 	/>
 	<meta name="color-scheme" content="light dark" />
+	<!-- Tints the phone's browser chrome to match the page instead of leaving a white or
+	     black band above it. -->
+	<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f7f9" />
+	<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f1216" />
 </svelte:head>
 
 <div class="shell">
@@ -94,25 +98,44 @@
 			sans-serif;
 		line-height: 1.45;
 		-webkit-text-size-adjust: 100%;
-		overflow-x: hidden;
 	}
 
+	/* Phone first: the 16px gutter is the floor, widened only where a notch or a rounded
+	   corner eats into the edge (viewport-fit=cover in app.html opts the page into that
+	   area). The bottom inset keeps the footer clear of the home indicator. */
 	.shell {
 		max-width: 44rem;
 		margin: 0 auto;
-		padding: 1.25rem 16px 2.5rem;
+		padding: calc(1rem + env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+			calc(2.5rem + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
 	}
 
 	header h1 {
 		margin: 0;
-		font-size: 1.5rem;
+		font-size: 1.35rem;
 		letter-spacing: -0.01em;
 	}
 
 	header p {
-		margin: 0.15rem 0 1.25rem;
+		margin: 0.1rem 0 1rem;
 		color: var(--muted);
-		font-size: 0.92rem;
+		font-size: 0.88rem;
+	}
+
+	/* Above phone width the header can afford its original size and breathing room. */
+	@media (min-width: 560px) {
+		.shell {
+			padding-top: calc(1.25rem + env(safe-area-inset-top));
+		}
+
+		header h1 {
+			font-size: 1.5rem;
+		}
+
+		header p {
+			margin: 0.15rem 0 1.25rem;
+			font-size: 0.92rem;
+		}
 	}
 
 	footer {
