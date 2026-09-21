@@ -48,6 +48,6 @@ JSON API, same origin as the site, no authentication required.
 
 ## More
 
-- Privacy: https://gantry-check.xuanhui98.workers.dev/privacy
-- Terms: https://gantry-check.xuanhui98.workers.dev/terms
+- Privacy: https://erp.xuanhuilee.com/privacy
+- Terms: https://erp.xuanhuilee.com/terms
 - Source: https://github.com/lxuanhui/gantry-check

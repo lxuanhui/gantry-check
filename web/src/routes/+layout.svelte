@@ -1,11 +1,20 @@
 <script lang="ts">
+	import { page } from '$app/state';
+
 	import favicon from '$lib/assets/favicon.svg';
 
 	let { children } = $props();
+
+	// The Worker answers on both its workers.dev address and this custom domain, which would
+	// otherwise look like duplicate sites to a crawler. The canonical URL names the one that
+	// counts, and it is also the origin the Google Maps browser key is restricted to.
+	const SITE = 'https://erp.xuanhuilee.com';
+	const canonical = $derived(SITE + page.url.pathname);
 </script>
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
+	<link rel="canonical" href={canonical} />
 	<title>ERP check — Singapore gantry fare estimate</title>
 	<meta
 		name="description"

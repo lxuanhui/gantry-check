@@ -11,4 +11,4 @@ Disallow: /rates/
 Disallow: /gantries
 Disallow: /health
 
-Sitemap: https://gantry-check.xuanhui98.workers.dev/sitemap.xml
+Sitemap: https://erp.xuanhuilee.com/sitemap.xml

@@ -301,7 +301,7 @@ One-time setup:
 
    | Variable | Used by | Notes |
    |---|---|---|
-   | `GOOGLE_MAPS_BROWSER_KEY` | ci, deploy (baked into the web build as `PUBLIC_GOOGLE_MAPS_BROWSER_KEY`) | Maps JavaScript API enabled, restricted by HTTP referrer to the deployed origin |
+   | `GOOGLE_MAPS_BROWSER_KEY` | ci, deploy (baked into the web build as `PUBLIC_GOOGLE_MAPS_BROWSER_KEY`) | Maps JavaScript API enabled, restricted by HTTP referrer to **every** origin the site answers on: `https://erp.xuanhuilee.com/*` (the custom domain) and the `*.workers.dev` address. A missing origin fails with `RefererNotAllowedMapError` on that host only |
 
    It is a variable, not a secret, because a browser key is public by design — it ships in the
    prerendered bundle, and the HTTP-referrer restriction is what protects it. With `gh`:
