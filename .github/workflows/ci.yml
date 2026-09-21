@@ -20,6 +20,12 @@ jobs:
 
   web:
     runs-on: ubuntu-latest
+    # Referrer-restricted Maps JavaScript API browser key, public by design (it ships in the
+    # bundle), hence a repository variable rather than a secret. Empty on forks, where
+    # `vars` is unavailable — the UI then renders a "map unavailable" note and still builds.
+    # Job-level so both `svelte-check` and the build see the same value.
+    env:
+      PUBLIC_GOOGLE_MAPS_BROWSER_KEY: ${{ vars.GOOGLE_MAPS_BROWSER_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

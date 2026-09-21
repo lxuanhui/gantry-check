@@ -99,7 +99,16 @@ cp .env.example .env              # CLI / local scripts: GOOGLE_MAPS_API_KEY, ON
                                    # ONEMAP_PASSWORD, ROUTING_ENGINE, LOCAL_DB
 cp .dev.vars.example .dev.vars    # `wrangler dev` secrets: GOOGLE_MAPS_API_KEY, ONEMAP_EMAIL,
                                    # ONEMAP_PASSWORD
+cp web/.env.example web/.env      # web UI build: PUBLIC_GOOGLE_MAPS_BROWSER_KEY
 ```
+
+`web/.env` is optional: SvelteKit reads `PUBLIC_GOOGLE_MAPS_BROWSER_KEY` through
+`$env/dynamic/public` at build time, so a missing file or an empty value both build fine and
+the map area then shows "Map unavailable". It is the browser key for the Maps JavaScript API,
+not the server-side `GOOGLE_MAPS_API_KEY`: keep it a separate key, restrict it by HTTP referrer
+to your origins (plus `http://localhost:5173/*` and `http://localhost:8787/*` for local dev;
+Google rejects `http://localhost:*/*`) and to the Maps JavaScript API only. It ships inside the
+prerendered bundle (`_app/env.js`), so it is public by design.
 
 Both `.env` and `.dev.vars` are gitignored. Never commit secrets. `ROUTING_ENGINE` for the
 deployed Worker is a plain (non-secret) var in `wrangler.jsonc`; production secrets are set with
@@ -237,7 +246,7 @@ and the web page itself stay reachable from anywhere.
 `web/` is a SvelteKit (Svelte 5, TypeScript, `adapter-static`) single page that geocodes both
 ends of the trip with OneMap's search API directly from the browser (no key needed), calls
 `POST /estimate`, and shows the total, the per-gantry breakdown (proximity-only matches are
-flagged "direction unverified") and a Leaflet map of the route with the charged gantries.
+flagged "direction unverified") and a Google map of the route with the charged gantries.
 Departure defaults to the current Singapore time and is sent as a naive local timestamp.
 
 ```sh
@@ -250,9 +259,16 @@ npm run build                    # prerenders into web/build
 The build output is what `wrangler.jsonc` points `assets.directory` at, so `web/build` must
 exist before `pywrangler dev` or `pywrangler deploy`. Paths with no matching asset fall through to
 the Python Worker, which is how the API keeps working on the same origin; `/` is served by the
-prerendered `index.html` and shadows FastAPI's fallback landing route. Map tiles come from
-OpenStreetMap. If you add another API link to the footer, add its path to `apiPaths` in
-`web/vite.config.ts`, or the prerender crawl fails.
+prerendered `index.html` and shadows FastAPI's fallback landing route. If you add another API
+link to the footer, add its path to `apiPaths` in `web/vite.config.ts`, or the prerender crawl
+fails.
+
+The map is the Google Maps JavaScript API, loaded in the browser only (`onMount` in
+`web/src/lib/RouteMap.svelte`, via `@googlemaps/js-api-loader`) so prerendering never touches
+it. Google Maps Platform requires a Google-routed path to be drawn on a Google map, which is
+why the route polyline is no longer shown on third-party tiles. The browser key comes from
+`PUBLIC_GOOGLE_MAPS_BROWSER_KEY` (see [Setup](#setup)); with no key, or if the API fails to
+load, the map area shows a muted "Map unavailable" note and everything else keeps working.
 
 ## Deploy
 
@@ -280,6 +296,16 @@ One-time setup:
    | `ONEMAP_EMAIL`, `ONEMAP_PASSWORD` | deploy (mirrored into the Worker) | OneMap account |
 
    With `gh`: `gh secret set NAME` reads the value from stdin.
+
+   And one repository **variable** (Settings → Secrets and variables → Actions → Variables):
+
+   | Variable | Used by | Notes |
+   |---|---|---|
+   | `GOOGLE_MAPS_BROWSER_KEY` | ci, deploy (baked into the web build as `PUBLIC_GOOGLE_MAPS_BROWSER_KEY`) | Maps JavaScript API enabled, restricted by HTTP referrer to the deployed origin |
+
+   It is a variable, not a secret, because a browser key is public by design — it ships in the
+   prerendered bundle, and the HTTP-referrer restriction is what protects it. With `gh`:
+   `gh variable set GOOGLE_MAPS_BROWSER_KEY`.
 
 3. Push to `main`, then run the **Refresh ERP data** workflow once (manual dispatch, `push_to_d1`
    on) to load the first rate snapshot into D1.

@@ -43,9 +43,10 @@
 			version 1.0.
 		</li>
 		<li>
-			Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer"
-				>OpenStreetMap</a
-			> contributors.
+			Map imagery and map data © Google, shown through the
+			<a href="https://developers.google.com/maps/documentation/javascript" target="_blank" rel="noreferrer"
+				>Google Maps JavaScript API</a
+			>. Google's own attribution is rendered by the map itself.
 		</li>
 		<li>
 			Address search by <a href="https://www.onemap.gov.sg/" target="_blank" rel="noreferrer"
@@ -61,11 +62,11 @@
 		<a href="https://cloud.google.com/maps-platform/terms" target="_blank" rel="noreferrer"
 			>Google Maps Platform Terms of Service</a
 		>
-		for routing, the
-		<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer"
-			>OpenStreetMap</a
+		for routing and for the map itself (the
+		<a href="https://policies.google.com/terms" target="_blank" rel="noreferrer"
+			>Google Terms of Service</a
 		>
-		copyright and licence for map tiles, OneMap's terms for address search, and the
+		apply to you as a user of that map), OneMap's terms for address search, and the
 		<a href="https://data.gov.sg/open-data-licence" target="_blank" rel="noreferrer"
 			>Singapore Open Data Licence v1.0</a
 		> for data.gov.sg datasets.

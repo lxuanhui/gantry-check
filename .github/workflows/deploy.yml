@@ -47,6 +47,10 @@ jobs:
       # web/build, which has to exist by the time wrangler reads the config.
       - name: Build web UI
         working-directory: web
+        # Referrer-restricted Maps JavaScript API browser key, public by design (it ships in
+        # the bundle), hence a repository variable rather than a secret.
+        env:
+          PUBLIC_GOOGLE_MAPS_BROWSER_KEY: ${{ vars.GOOGLE_MAPS_BROWSER_KEY }}
         run: |
           npm ci
           npm run build

@@ -26,9 +26,12 @@
 			coordinates.
 		</li>
 		<li>
-			<b>OpenStreetMap.</b> The result map is drawn with map tiles fetched directly by your
-			browser from tile.openstreetmap.org, so the OpenStreetMap Foundation sees your IP address
-			and which map area you're viewing.
+			<b>Google Maps.</b> The result map is the Google Maps JavaScript API, loaded and drawn
+			directly by your browser from Google's servers, so Google sees your IP address and which
+			map area you're viewing. Google's
+			<a href="https://policies.google.com/privacy" target="_blank" rel="noreferrer"
+				>privacy policy</a
+			> applies to that.
 		</li>
 		<li>
 			<b>Cloudflare.</b> The site is hosted on Cloudflare Workers, so Cloudflare sees your IP
@@ -42,7 +45,9 @@
 
 	<h3>Cookies and tracking</h3>
 	<p>
-		None. No cookies, no accounts, no analytics, no localStorage, no ads, no tracking scripts.
+		We set none: no cookies, no accounts, no analytics, no localStorage, no ads, no tracking
+		scripts. The embedded Google map is loaded from Google, and Google may set its own cookies
+		when you use it; Google's privacy policy covers those.
 	</p>
 
 	<h3>Your choices and contact</h3>

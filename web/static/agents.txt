@@ -41,7 +41,8 @@ JSON API, same origin as the site, no authentication required.
 - Gantry lines ("LTA Gantry (GEOJSON)") and public holidays: data.gov.sg
   (https://data.gov.sg/), under the Singapore Open Data Licence v1.0
   (https://data.gov.sg/open-data-licence).
-- Map tiles: © OpenStreetMap contributors (https://www.openstreetmap.org/copyright).
+- Map display: Google Maps JavaScript API; map imagery and map data © Google
+  (https://developers.google.com/maps/documentation/javascript).
 - Address search: OneMap (https://www.onemap.gov.sg/), © Singapore Land Authority.
 - Routing: Google (Google Maps Platform / Routes API).
 
