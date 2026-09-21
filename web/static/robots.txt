@@ -1,3 +1,14 @@
-# allow crawling everything by default
+# allow crawling everything, except API paths a crawler has no use for
 User-agent: *
-Disallow:
+Allow: /
+Allow: /privacy
+Allow: /terms
+Disallow: /estimate
+Disallow: /docs
+Disallow: /openapi.json
+Disallow: /redoc
+Disallow: /rates/
+Disallow: /gantries
+Disallow: /health
+
+Sitemap: https://gantry-check.xuanhui98.workers.dev/sitemap.xml

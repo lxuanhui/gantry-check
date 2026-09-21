@@ -29,8 +29,9 @@
 			<a href="https://www.onemap.gov.sg/" target="_blank" rel="noreferrer">OneMap</a>.
 		</p>
 		<p>
-			<a href="/docs" data-sveltekit-reload>API docs</a> · Estimates only — crossing times are
-			modelled from the route, not measured.
+			<a href="/docs" data-sveltekit-reload>API docs</a> · <a href="/privacy">Privacy</a> ·
+			<a href="/terms">Terms</a> · Estimates only — crossing times are modelled from the route,
+			not measured.
 		</p>
 	</footer>
 </div>

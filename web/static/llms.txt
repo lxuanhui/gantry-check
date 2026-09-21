@@ -1,0 +1,50 @@
+# ERP check
+
+> Free tool that estimates Singapore ERP (Electronic Road Pricing) charges for a drive: pick an
+> origin, a destination and a departure time, and it returns which gantries the route crosses,
+> when it crosses each one, and what each crossing costs. Estimates only — not authoritative;
+> LTA / OneMotoring is the source of record.
+
+## What it does
+
+- Address search happens client-side against OneMap's public search API; that traffic never
+  touches this site's server.
+- An estimate request sends origin/destination coordinates, a departure time and a vehicle class
+  to this site's API, which asks the Google Routes API for a route and matches it against gantry
+  and rate data.
+- The result includes the route polyline, the gantries crossed, the crossing time for each, and
+  the total estimated charge.
+- Nothing about a request is stored server-side; the database only holds public rate and gantry
+  data.
+- Access is restricted to requests Cloudflare attributes to Singapore, and rate limited to 20
+  requests per minute per IP address.
+
+## API
+
+JSON API, same origin as the site, no authentication required.
+
+- `POST /estimate` — body:
+  `{"origin":[lat,lng],"destination":[lat,lng],"depart_at":"2026-09-22T08:00:00+08:00","vehicle":"car"}`
+  → route summary, per-gantry charges and the total.
+- `GET /gantries` — list of known ERP gantries with coordinates.
+- `GET /rates/{gantry}?at=<ISO timestamp>` — the rate for one gantry at a given time.
+- `GET /openapi.json` — OpenAPI schema for the full API.
+- `GET /docs` — interactive API documentation.
+
+## Data sources and attribution
+
+- ERP rates: LTA DataMall's per-gantry rate tables and the ERP Rates PDF
+  (https://datamall.lta.gov.sg/), under the LTA DataMall Terms of Use.
+- Gantry coordinates: LTA's OneMotoring gantry KML.
+- Gantry lines ("LTA Gantry (GEOJSON)") and public holidays: data.gov.sg
+  (https://data.gov.sg/), under the Singapore Open Data Licence v1.0
+  (https://data.gov.sg/open-data-licence).
+- Map tiles: © OpenStreetMap contributors (https://www.openstreetmap.org/copyright).
+- Address search: OneMap (https://www.onemap.gov.sg/), © Singapore Land Authority.
+- Routing: Google (Google Maps Platform / Routes API).
+
+## More
+
+- Privacy: https://gantry-check.xuanhui98.workers.dev/privacy
+- Terms: https://gantry-check.xuanhui98.workers.dev/terms
+- Source: https://github.com/lxuanhui/gantry-check
