@@ -15,7 +15,16 @@ _ENV_KEYS = (
     "ONEMAP_PASSWORD",
     "ROUTING_ENGINE",
     "LOCAL_DB",
+    "ALLOWED_COUNTRIES",
 )
+
+
+def _countries(raw: str | None) -> frozenset[str]:
+    """Parse a comma-separated country-code list into upper-cased codes.
+
+    Empty or missing input yields an empty set, which callers read as "no country gate".
+    """
+    return frozenset(part.strip().upper() for part in (raw or "").split(",") if part.strip())
 
 
 @dataclass(frozen=True, slots=True)
@@ -25,6 +34,8 @@ class Settings:
     onemap_password: str | None = None
     routing_engine: str = "google"
     local_db: str = "data/local.sqlite"
+    #: ISO 3166-1 alpha-2 codes allowed to call the expensive endpoints. Empty = no gate.
+    allowed_countries: frozenset[str] = frozenset()
 
     @classmethod
     def from_env(cls, env: Mapping[str, str] | None = None) -> Settings:
@@ -36,6 +47,7 @@ class Settings:
             onemap_password=source.get("ONEMAP_PASSWORD") or None,
             routing_engine=(source.get("ROUTING_ENGINE") or "google").strip().lower(),
             local_db=source.get("LOCAL_DB") or "data/local.sqlite",
+            allowed_countries=_countries(source.get("ALLOWED_COUNTRIES")),
         )
 
     @classmethod
@@ -47,6 +59,7 @@ class Settings:
             onemap_password=getattr(obj, "ONEMAP_PASSWORD", None) or None,
             routing_engine=(getattr(obj, "ROUTING_ENGINE", None) or "google").strip().lower(),
             local_db=getattr(obj, "LOCAL_DB", None) or "data/local.sqlite",
+            allowed_countries=_countries(getattr(obj, "ALLOWED_COUNTRIES", None)),
         )
 
 

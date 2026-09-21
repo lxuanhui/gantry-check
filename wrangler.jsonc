@@ -11,8 +11,21 @@
 	// shadowing FastAPI's own landing route.
 	"assets": { "directory": "./web/build" },
 	"vars": {
-		"ROUTING_ENGINE": "google"
+		"ROUTING_ENGINE": "google",
+		// Country codes (comma-separated) allowed to POST /estimate, matched against the
+		// `cf-ipcountry` header Cloudflare sets. Empty or absent = no country gate.
+		"ALLOWED_COUNTRIES": "SG"
 	},
+	// Per-IP rate limit for POST /estimate (each call there costs a routing-provider request).
+	// `period` must be 10 or 60; `namespace_id` is an arbitrary integer naming this
+	// limit's counter namespace.
+	"ratelimits": [
+		{
+			"name": "ESTIMATE_RATE_LIMIT",
+			"namespace_id": "1001",
+			"simple": { "limit": 20, "period": 60 }
+		}
+	],
 	"d1_databases": [
 		{
 			"binding": "DB",

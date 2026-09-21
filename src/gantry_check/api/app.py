@@ -4,15 +4,16 @@ so the Worker can hand over its D1 binding and tests can hand over an in-memory 
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from datetime import datetime
 from typing import Annotated, Any, Literal
 
-from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from gantry_check import __version__
+from gantry_check.api.guards import Guard
 from gantry_check.domain.daytype import day_type_for, to_sgt
 from gantry_check.domain.geo import encode_polyline
 from gantry_check.domain.models import (
@@ -29,6 +30,18 @@ from gantry_check.routing.base import RoutingEngine, RoutingError
 
 RepoFactory = Callable[[Request], Repo]
 EngineFactory = Callable[[Request], RoutingEngine]
+
+#: Rough box around Singapore's road network (Tuas to Changi Bay, Sentosa to Woodlands
+#: Checkpoint). Coarse on purpose: it stops the API being used as a free world-routing proxy,
+#: it does not try to follow the border (Johor Bahru city centre is ~2 km north of the
+#: checkpoint and falls inside it).
+SINGAPORE_BOUNDS = ((1.20, 103.60), (1.47, 104.05))  # (min_lat, min_lng), (max_lat, max_lng)
+
+
+def in_singapore(lat: float, lng: float) -> bool:
+    """True if (lat, lng) falls inside :data:`SINGAPORE_BOUNDS`."""
+    (min_lat, min_lng), (max_lat, max_lng) = SINGAPORE_BOUNDS
+    return min_lat <= lat <= max_lat and min_lng <= lng <= max_lng
 
 
 class GantryOut(BaseModel):
@@ -77,6 +90,14 @@ class EstimateIn(BaseModel):
         default=None,
         description="Accepted but ignored: the routing engine is chosen by server config.",
     )
+
+    @field_validator("origin", "destination")
+    @classmethod
+    def _within_singapore(cls, point: tuple[float, float]) -> tuple[float, float]:
+        lat, lng = point
+        if not in_singapore(lat, lng):
+            raise ValueError(f"outside Singapore: ({lat}, {lng})")
+        return point
 
 
 class ChargeOut(BaseModel):
@@ -176,7 +197,12 @@ offset is given.</p>
 """
 
 
-def create_app(repo_factory: RepoFactory, engine_factory: EngineFactory | None = None) -> FastAPI:
+def create_app(
+    repo_factory: RepoFactory,
+    engine_factory: EngineFactory | None = None,
+    *,
+    estimate_guards: Sequence[Guard] = (),
+) -> FastAPI:
     app = FastAPI(
         title="gantry-check",
         version=__version__,
@@ -277,7 +303,11 @@ def create_app(repo_factory: RepoFactory, engine_factory: EngineFactory | None =
             gantry=gantry, vehicle=vehicle, day_type=day_type, bands=[_band_out(b) for b in bands]
         )
 
-    @app.post("/estimate", response_model=EstimateOut)
+    @app.post(
+        "/estimate",
+        response_model=EstimateOut,
+        dependencies=[Depends(g) for g in estimate_guards],
+    )
     async def estimate(request: Request, body: EstimateIn) -> EstimateOut:
         engine = engine_for(request)
         try:

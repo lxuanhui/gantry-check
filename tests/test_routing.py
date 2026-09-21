@@ -360,12 +360,19 @@ def test_settings_from_env_mapping():
         "ONEMAP_PASSWORD": "pw",
         "ROUTING_ENGINE": "onemap",
         "LOCAL_DB": "data/custom.sqlite",
+        "ALLOWED_COUNTRIES": "sg, MY",
     }
     settings = Settings.from_env(env)
     assert settings.google_maps_api_key == "gkey"
     assert settings.onemap_email == "a@b.com"
     assert settings.routing_engine == "onemap"
     assert settings.local_db == "data/custom.sqlite"
+    assert settings.allowed_countries == frozenset({"SG", "MY"})
+
+
+def test_settings_allowed_countries_defaults_to_empty():
+    assert Settings.from_env({}).allowed_countries == frozenset()
+    assert Settings.from_env({"ALLOWED_COUNTRIES": "  "}).allowed_countries == frozenset()
 
 
 def test_settings_from_object():
@@ -374,11 +381,20 @@ def test_settings_from_object():
         ONEMAP_EMAIL = None
         ONEMAP_PASSWORD = None
         ROUTING_ENGINE = "google"
+        ALLOWED_COUNTRIES = "sg, MY"
 
     settings = Settings.from_object(FakeWorkerEnv())
     assert settings.google_maps_api_key == "gkey"
     assert settings.onemap_email is None
     assert settings.local_db == "data/local.sqlite"
+    assert settings.allowed_countries == frozenset({"SG", "MY"})
+
+
+def test_settings_from_object_without_allowed_countries():
+    class BareWorkerEnv:
+        ROUTING_ENGINE = "google"
+
+    assert Settings.from_object(BareWorkerEnv()).allowed_countries == frozenset()
 
 
 def test_load_dotenv(tmp_path):

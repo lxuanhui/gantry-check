@@ -141,6 +141,12 @@ export function explainError(error: unknown): { title: string; detail: string } 
 		if (error.status === 422) {
 			return { title: 'Check the trip details', detail: error.message };
 		}
+		if (error.status === 403) {
+			return { title: 'Not available outside Singapore', detail: error.message };
+		}
+		if (error.status === 429) {
+			return { title: 'Slow down a little', detail: error.message };
+		}
 		return { title: 'The estimate failed', detail: error.message };
 	}
 	return {

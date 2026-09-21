@@ -211,6 +211,27 @@ Errors: `503` when no routing engine is configured (neither Google nor OneMap cr
 set), `502` when the routing engine call itself fails (bad API key, upstream error), `422` for a
 malformed request body (standard FastAPI/pydantic validation).
 
+### Singapore-only restrictions
+
+`POST /estimate` is the only endpoint restricted; `/health`, `/gantries`, `/rates/...`, `/docs`,
+and the web page itself stay reachable from anywhere.
+
+- **Bounding box (422).** Origin and destination must both fall within a rough Singapore box (lat
+  1.20–1.47, lng 103.60–104.05), or the request is rejected with `422` and a detail like
+  `"outside Singapore: (3.14, 101.69)"`. The box is deliberately coarse rather than border-accurate
+  — it exists to stop the API being used as a free world-routing proxy, not to trace the border, so
+  it also covers Johor Bahru city centre (~2 km north of Woodlands Checkpoint).
+- **Country gate (403).** When Cloudflare's `cf-ipcountry` header is present and its value isn't in
+  the Worker var `ALLOWED_COUNTRIES` (comma-separated, set to `SG` in `wrangler.jsonc`), the request
+  is refused with `403` and detail `"Estimates are only available from Singapore."`. Set
+  `ALLOWED_COUNTRIES` to a longer comma-separated list to widen it, or to an empty string to disable
+  the gate entirely. Local dev (`pywrangler dev`, `uvicorn`, tests) never sees `cf-ipcountry`, so the
+  gate is inactive there regardless of the setting.
+- **Rate limit (429).** Requests are capped per client IP by the `ESTIMATE_RATE_LIMIT` Cloudflare
+  Rate Limiting binding under `ratelimits` in `wrangler.jsonc`: 20 requests per 60 seconds, `429`
+  with detail `"Too many estimates from your address. Try again in a minute."` when exceeded. Change
+  the numbers there (`period` must be `10` or `60`); if the binding is absent the limit is skipped.
+
 ## Web UI
 
 `web/` is a SvelteKit (Svelte 5, TypeScript, `adapter-static`) single page that geocodes both

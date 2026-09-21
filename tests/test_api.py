@@ -3,7 +3,8 @@ from datetime import UTC, date, datetime
 import pytest
 from fastapi.testclient import TestClient
 
-from gantry_check.api.app import create_app
+from gantry_check.api.app import create_app, in_singapore
+from gantry_check.api.guards import country_guard
 from gantry_check.domain.geo import decode_polyline
 from gantry_check.domain.models import (
     DayType,
@@ -238,3 +239,75 @@ def test_estimate_routing_failure_is_502(repo: SqliteRepo) -> None:
 def test_estimate_validates_its_body(estimating_client: TestClient) -> None:
     assert estimating_client.post("/estimate", json={"origin": [1.34, 103.86]}).status_code == 422
     assert estimating_client.post("/estimate", json=_body(vehicle="hovercraft")).status_code == 422
+
+
+def test_estimate_rejects_an_origin_outside_singapore(estimating_client: TestClient) -> None:
+    r = estimating_client.post("/estimate", json=_body(origin=[3.14, 101.69]))  # Kuala Lumpur
+    assert r.status_code == 422
+    assert "outside Singapore" in r.text
+
+
+def test_estimate_rejects_a_destination_outside_singapore(estimating_client: TestClient) -> None:
+    r = estimating_client.post("/estimate", json=_body(destination=[1.05, 104.03]))  # Batam
+    assert r.status_code == 422
+    assert "outside Singapore" in r.json()["detail"][0]["msg"]
+
+
+def test_estimate_accepts_a_singapore_trip(estimating_client: TestClient) -> None:
+    r = estimating_client.post(
+        "/estimate", json=_body(origin=[1.3644, 103.9915], destination=[1.2840, 103.8515])
+    )
+    assert r.status_code == 200
+
+
+@pytest.mark.parametrize(
+    ("name", "lat", "lng", "inside"),
+    [
+        ("Raffles Place", 1.2840, 103.8515, True),
+        ("Tuas checkpoint", 1.3480, 103.6360, True),
+        ("Changi Airport", 1.3644, 103.9915, True),
+        ("Kuala Lumpur", 3.14, 101.69, False),
+        ("Batam", 1.05, 104.03, False),
+    ],
+)
+def test_in_singapore(name: str, lat: float, lng: float, inside: bool) -> None:
+    assert in_singapore(lat, lng) is inside, name
+
+
+# ------------------------------------------------------------------- guards
+
+
+@pytest.fixture
+def guarded_client(repo: SqliteRepo) -> TestClient:
+    return TestClient(
+        create_app(
+            lambda _r: repo,
+            lambda _r: FakeEngine(),
+            estimate_guards=[country_guard(frozenset({"SG"}))],
+        )
+    )
+
+
+def test_country_guard_allows_singapore(guarded_client: TestClient) -> None:
+    r = guarded_client.post("/estimate", json=_body(), headers={"cf-ipcountry": "SG"})
+    assert r.status_code == 200
+
+
+def test_country_guard_refuses_other_countries(guarded_client: TestClient) -> None:
+    r = guarded_client.post("/estimate", json=_body(), headers={"cf-ipcountry": "US"})
+    assert r.status_code == 403
+    assert r.json() == {"detail": "Estimates are only available from Singapore."}
+
+
+def test_country_guard_allows_a_missing_header(guarded_client: TestClient) -> None:
+    # No Cloudflare in front (local dev, tests): there is no country to check, so allow.
+    assert guarded_client.post("/estimate", json=_body()).status_code == 200
+
+
+def test_country_guard_runs_before_body_validation(guarded_client: TestClient) -> None:
+    # Guards are route dependencies, which FastAPI resolves before validating the body: a
+    # blocked country gets 403 even when the body would otherwise be a 422.
+    r = guarded_client.post(
+        "/estimate", json={"origin": [1.34, 103.86]}, headers={"cf-ipcountry": "US"}
+    )
+    assert r.status_code == 403
